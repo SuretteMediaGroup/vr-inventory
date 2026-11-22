@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="VR Inventory">
+<meta name="theme-color" content="#ffffff">
+<title>Vintage Roots Inventory</title>
+<style>
+:root{--ink:#161616;--mut:#6b6b6b;--line:#e8e5e0;--soft:#f6f5f2;--acc:#7a5c2e;--red:#b3261e;--amb:#a35f00;--grn:#2c7a3f;--bg:#fff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.4}
+button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{font-size:16px}
+#wrap{max-width:980px;margin:0 auto;padding:0 14px 96px}
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:20}
+header img{height:28px;display:block;flex:none}
+#sync{font-size:11px}
+@media(max-width:520px){#sync{display:none}}
+.hr{display:flex;gap:8px;align-items:center;color:var(--mut);font-size:12px}
+nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:30}
+nav button{flex:1;border:0;background:none;padding:8px 2px;font-size:12px;color:var(--mut);border-radius:8px}
+nav button.on{color:var(--ink);font-weight:700}
+nav button.on:after{content:"";display:block;height:2px;background:var(--ink);margin:4px 12px 0}
+@media(min-width:900px){nav{position:sticky;top:55px;bottom:auto;border-top:0;border-bottom:1px solid var(--line);justify-content:flex-start;gap:6px;padding:0}nav button{flex:0 0 auto;padding:12px 16px;font-size:14px}nav button.on:after{margin:4px 0 -1px}#wrap{padding-bottom:40px}}
+h1{font-size:20px;margin:18px 0 4px}h2{font-size:15px;margin:20px 0 8px}
+.sub{color:var(--mut);font-size:13px;margin:0 0 10px}
+.card{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
+.stat b{display:block;font-size:24px}.stat span{color:var(--mut);font-size:12px}
+.banner{border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:8px;padding:10px 12px;margin:12px 0;background:var(--soft)}
+.banner.red{border-left-color:var(--red);background:#fdf3f2}
+.btn{border:1px solid var(--ink);background:#fff;border-radius:8px;padding:9px 14px;font-weight:600;cursor:pointer}
+.btn.p{background:var(--ink);color:#fff}.btn.sm{padding:6px 10px;font-size:13px}.btn.g{border-color:var(--line);color:var(--ink);font-weight:500}
+.btn:disabled{opacity:.4}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.sp{flex:1}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0;margin:8px 0}
+.tabs button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;white-space:nowrap;font-size:13px}
+.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.bar{height:6px;background:var(--line);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.cc{border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center;background:#fff}
+.cc.done{border-color:var(--ink);background:var(--soft)}
+.cc.hit{border-color:var(--grn);background:#f1faf3}
+.cc .code{font-weight:800;font-size:17px;word-break:break-word}
+.cc .exp{font-size:11px;color:var(--mut);min-height:15px}
+.ctr{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:4px}
+.ctr button{width:32px;height:32px;border:1px solid var(--line);background:#fff;border-radius:8px;font-size:18px;line-height:1}
+.ctr input{width:44px;height:32px;text-align:center;border:1px solid var(--line);border-radius:8px;padding:0}
+.lrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.lrow .nm{flex:1;min-width:0}.lrow .nm b{display:block}.lrow .nm small{color:var(--mut)}
+.gh{font-size:12px;color:var(--mut);font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin:16px 0 6px}
+.pill{display:inline-block;font-size:11px;padding:1px 7px;border-radius:99px;border:1px solid var(--line);color:var(--mut)}
+.pill.out{color:var(--red);border-color:var(--red)}.pill.low{color:var(--amb);border-color:var(--amb)}.pill.ok{color:var(--grn);border-color:var(--grn)}.pill.sale{background:var(--acc);border-color:var(--acc);color:#fff}
+input.f,select.f,textarea.f{border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%;background:#fff}
+textarea.f{min-height:180px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
+.inl{width:70px!important;text-align:center;padding:6px!important}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:60;display:flex;align-items:flex-end;justify-content:center}
+.modal .box{background:#fff;width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px}
+@media(min-width:700px){.modal{align-items:center}.modal .box{border-radius:14px}}
+.modal h3{margin:0 0 8px}
+video{width:100%;border-radius:10px;background:#000;max-height:50vh}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:var(--ink);color:#fff;padding:9px 14px;border-radius:99px;font-size:13px;z-index:90;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
+#toast.on{opacity:1}
+#lock{position:fixed;inset:0;background:#fff;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+#lock .box{width:100%;max-width:320px;text-align:center}
+#lock img{height:44px;margin-bottom:18px}
+.pin{display:flex;gap:10px;justify-content:center;margin:14px 0}
+.pin i{width:14px;height:14px;border-radius:50%;border:2px solid var(--ink)}.pin i.on{background:var(--ink)}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kp button{height:54px;border:1px solid var(--line);background:#fff;border-radius:12px;font-size:22px}
+.err{color:var(--red);min-height:20px;font-size:13px}
+#print{display:none}
+@media print{body>*:not(#print){display:none!important}#print{display:block!important;padding:24px;font-size:13px}#print table{width:100%;border-collapse:collapse}#print td,#print th{border-bottom:1px solid #ccc;padding:6px;text-align:left}}
+.tbl{width:100%;border-collapse:collapse}.tbl td,.tbl th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}.tbl th{font-size:12px;color:var(--mut)}
+.todo{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.todo .t{flex:1}.todo small{color:var(--mut);display:block}
+.chk{width:20px;height:20px;border:2px solid var(--ink);border-radius:5px;flex:none;margin-top:2px}.chk.on{background:var(--ink)}
+</style>
+</head>
+<body>
+<div id="lock" style="display:none"></div>
+<div id="wrap"><header><img id="logo" alt="Vintage Roots Hair Salon"><div class="hr"><span id="sync"></span><button class="btn g sm" data-act="settings">Settings</button></div></header><nav id="nav"></nav><main id="main"></main></div>
+<div id="modal"></div><div id="toast"></div><div id="print"></div>
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
+<script>
+(function(){
+'use strict';
+var SEED={"products": [{"id": "TC_2N", "line": "TC", "code": "2N", "name": "Topchic 2N", "short": "2N", "size": "250 ml", "grp": null, "o": 0}, {"id": "TC_3N", "line": "TC", "code": "3N", "name": "Topchic 3N", "short": "3N", "size": "250 ml", "grp": null, "o": 1}, {"id": "TC_4N", "line": "TC", "code": "4N", "name": "Topchic 4N", "short": "4N", "size": "250 ml", "grp": null, "o": 2}, {"id": "TC_5N", "line": "TC", "code": "5N", "name": "Topchic 5N", "short": "5N", "size": "250 ml", "grp": null, "o": 3}, {"id": "TC_6N", "line": "TC", "code": "6N", "name": "Topchic 6N", "short": "6N", "size": "250 ml", "grp": null, "o": 4}, {"id": "TC_7N", "line": "TC", "code": "7N", "name": "Topchic 7N", "short": "7N", "size": "250 ml", "grp": null, "o": 5}, {"id": "TC_8N", "line": "TC", "code": "8N", "name": "Topchic 8N", "short": "8N", "size": "250 ml", "grp": null, "o": 6}, {"id": "TC_9N", "line": "TC", "code": "9N", "name": "Topchic 9N", "short": "9N", "size": "250 ml", "grp": null, "o": 7}, {"id": "TC_10N", "line": "TC", "code": "10N", "name": "Topchic 10N", "short": "10N", "size": "250 ml", "grp": null, "o": 8}, {"id": "TC_11N", "line": "TC", "code": "11N", "name": "Topchic 11N", "short": "11N", "size": "250 ml", "grp": null, "o": 9}, {"id": "TC_3NN", "line": "TC", "code": "3NN", "name": "Topchic 3NN", "short": "3NN", "size": "250 ml", "grp": null, "o": 10}, {"id": "TC_4NN", "line": "TC", "code": "4NN", "name": "Topchic 4NN", "short": "4NN", "size": "250 ml", "grp": null, "o": 11}, {"id": "TC_5NN", "line": "TC", "code": "5NN", "name": "Topchic 5NN", "short": "5NN", "size": "250 ml", "grp": null, "o": 12}, {"id": "TC_6NN", "line": "TC", "code": "6NN", "name": "Topchic 6NN", "short": "6NN", "size": "250 ml", "grp": null, "o": 13}, {"id": "TC_7NN", "line": "TC", "code": "7NN", "name": "Topchic 7NN", "short": "7NN", "size": "250 ml", "grp": null, "o": 14}, {"id": "TC_8NN", "line": "TC", "code": "8NN", "name": "Topchic 8NN", "short": "8NN", "size": "250 ml", "grp": null, "o": 15}, {"id": "TC_9NN", "line": "TC", "code": "9NN", "name": "Topchic 9NN", "short": "9NN", "size": "250 ml", "grp": null, "o": 16}, {"id": "TC_4NA", "line": "TC", "code": "4NA", "name": "Topchic 4NA", "short": "4NA", "size": "250 ml", "grp": null, "o": 17}, {"id": "TC_5NA", "line": "TC", "code": "5NA", "name": "Topchic 5NA", "short": "5NA", "size": "250 ml", "grp": null, "o": 18}, {"id": "TC_6NA", "line": "TC", "code": "6NA", "name": "Topchic 6NA", "short": "6NA", "size": "250 ml", "grp": null, "o": 19}, {"id": "TC_7NA", "line": "TC", "code": "7NA", "name": "Topchic 7NA", "short": "7NA", "size": "250 ml", "grp": null, "o": 20}, {"id": "TC_8NA", "line": "TC", "code": "8NA", "name": "Topchic 8NA", "short": "8NA", "size": "250 ml", "grp": null, "o": 21}, {"id": "TC_9NA", "line": "TC", "code": "9NA", "name": "Topchic 9NA", "short": "9NA", "size": "250 ml", "grp": null, "o": 22}, {"id": "TC_2A", "line": "TC", "code": "2A", "name": "Topchic 2A", "short": "2A", "size": "250 ml", "grp": null, "o": 23}, {"id": "TC_5A", "line": "TC", "code": "5A", "name": "Topchic 5A", "short": "5A", "size": "250 ml", "grp": null, "o": 24}, {"id": "TC_6A", "line": "TC", "code": "6A", "name": "Topchic 6A", "short": "6A", "size": "250 ml", "grp": null, "o": 25}, {"id": "TC_7A", "line": "TC", "code": "7A", "name": "Topchic 7A", "short": "7A", "size": "250 ml", "grp": null, "o": 26}, {"id": "TC_8A", "line": "TC", "code": "8A", "name": "Topchic 8A", "short": "8A", "size": "250 ml", "grp": null, "o": 27}, {"id": "TC_9A", "line": "TC", "code": "9A", "name": "Topchic 9A", "short": "9A", "size": "250 ml", "grp": null, "o": 28}, {"id": "TC_10A", "line": "TC", "code": "10A", "name": "Topchic 10A", "short": "10A", "size": "250 ml", "grp": null, "o": 29}, {"id": "TC_11A", "line": "TC", "code": "11A", "name": "Topchic 11A", "short": "11A", "size": "250 ml", "grp": null, "o": 30}, {"id": "TC_6SB", "line": "TC", "code": "6SB", "name": "Topchic 6SB", "short": "6SB", "size": "250 ml", "grp": null, "o": 31}, {"id": "TC_7SB", "line": "TC", "code": "7SB", "name": "Topchic 7SB", "short": "7SB", "size": "250 ml", "grp": null, "o": 32}, {"id": "TC_8SB", "line": "TC", "code": "8SB", "name": "Topchic 8SB", "short": "8SB", "size": "250 ml", "grp": null, "o": 33}, {"id": "TC_5MB", "line": "TC", "code": "5MB", "name": "Topchic 5MB", "short": "5MB", "size": "250 ml", "grp": null, "o": 34}, {"id": "TC_6MB", "line": "TC", "code": "6MB", "name": "Topchic 6MB", "short": "6MB", "size": "250 ml", "grp": null, "o": 35}, {"id": "TC_7MB", "line": "TC", "code": "7MB", "name": "Topchic 7MB", "short": "7MB", "size": "250 ml", "grp": null, "o": 36}, {"id": "TC_4G", "line": "TC", "code": "4G", "name": "Topchic 4G", "short": "4G", "size": "250 ml", "grp": null, "o": 37}, {"id": "TC_6G", "line": "TC", "code": "6G", "name": "Topchic 6G", "short": "6G", "size": "250 ml", "grp": null, "o": 38}, {"id": "TC_7G", "line": "TC", "code": "7G", "name": "Topchic 7G", "short": "7G", "size": "250 ml", "grp": null, "o": 39}, {"id": "TC_8G", "line": "TC", "code": "8G", "name": "Topchic 8G", "short": "8G", "size": "250 ml", "grp": null, "o": 40}, {"id": "TC_9G", "line": "TC", "code": "9G", "name": "Topchic 9G", "short": "9G", "size": "250 ml", "grp": null, "o": 41}, {"id": "TC_9GN", "line": "TC", "code": "9GN", "name": "Topchic 9GN", "short": "9GN", "size": "250 ml", "grp": null, "o": 42}, {"id": "TC_5BG", "line": "TC", "code": "5BG", "name": "Topchic 5BG", "short": "5BG", "size": "250 ml", "grp": null, "o": 43}, {"id": "TC_7BG", "line": "TC", "code": "7BG", "name": "Topchic 7BG", "short": "7BG", "size": "250 ml", "grp": null, "o": 44}, {"id": "TC_5GB", "line": "TC", "code": "5GB", "name": "Topchic 5GB", "short": "5GB", "size": "250 ml", "grp": null, "o": 45}, {"id": "TC_6GB", "line": "TC", "code": "6GB", "name": "Topchic 6GB", "short": "6GB", "size": "250 ml", "grp": null, "o": 46}, {"id": "TC_7GB", "line": "TC", "code": "7GB", "name": "Topchic 7GB", "short": "7GB", "size": "250 ml", "grp": null, "o": 47}, {"id": "TC_8GB", "line": "TC", "code": "8GB", "name": "Topchic 8GB", "short": "8GB", "size": "250 ml", "grp": null, "o": 48}, {"id": "TC_9GB", "line": "TC", "code": "9GB", "name": "Topchic 9GB", "short": "9GB", "size": "250 ml", "grp": null, "o": 49}, {"id": "TC_10GB", "line": "TC", "code": "10GB", "name": "Topchic 10GB", "short": "10GB", "size": "250 ml", "grp": null, "o": 50}, {"id": "TC_5K", "line": "TC", "code": "5K", "name": "Topchic 5K", "short": "5K", "size": "250 ml", "grp": null, "o": 51}, {"id": "TC_6K", "line": "TC", "code": "6K", "name": "Topchic 6K", "short": "6K", "size": "250 ml", "grp": null, "o": 52}, {"id": "TC_7K", "line": "TC", "code": "7K", "name": "Topchic 7K", "short": "7K", "size": "250 ml", "grp": null, "o": 53}, {"id": "TC_8K", "line": "TC", "code": "8K", "name": "Topchic 8K", "short": "8K", "size": "250 ml", "grp": null, "o": 54}, {"id": "TC_8KN", "line": "TC", "code": "8KN", "name": "Topchic 8KN", "short": "8KN", "size": "250 ml", "grp": null, "o": 55}, {"id": "TC_6KG", "line": "TC", "code": "6KG", "name": "Topchic 6KG", "short": "6KG", "size": "250 ml", "grp": null, "o": 56}, {"id": "TC_7KG", "line": "TC", "code": "7KG", "name": "Topchic 7KG", "short": "7KG", "size": "250 ml", "grp": null, "o": 57}, {"id": "TC_8KG", "line": "TC", "code": "8KG", "name": "Topchic 8KG", "short": "8KG", "size": "250 ml", "grp": null, "o": 58}, {"id": "TC_6KR", "line": "TC", "code": "6KR", "name": "Topchic 6KR", "short": "6KR", "size": "250 ml", "grp": null, "o": 59}, {"id": "TC_7OO", "line": "TC", "code": "7OO", "name": "Topchic 7OO", "short": "7OO", "size": "250 ml", "grp": null, "o": 60}, {"id": "TC_5R", "line": "TC", "code": "5R", "name": "Topchic 5R", "short": "5R", "size": "250 ml", "grp": null, "o": 61}, {"id": "TC_6R", "line": "TC", "code": "6R", "name": "Topchic 6R", "short": "6R", "size": "250 ml", "grp": null, "o": 62}, {"id": "TC_5RB", "line": "TC", "code": "5RB", "name": "Topchic 5RB", "short": "5RB", "size": "250 ml", "grp": null, "o": 63}, {"id": "TC_6RB", "line": "TC", "code": "6RB", "name": "Topchic 6RB", "short": "6RB", "size": "250 ml", "grp": null, "o": 64}, {"id": "TC_7RB", "line": "TC", "code": "7RB", "name": "Topchic 7RB", "short": "7RB", "size": "250 ml", "grp": null, "o": 65}, {"id": "TC_7RO", "line": "TC", "code": "7RO", "name": "Topchic 7RO", "short": "7RO", "size": "250 ml", "grp": null, "o": 66}, {"id": "TC_5RR", "line": "TC", "code": "5RR", "name": "Topchic 5RR", "short": "5RR", "size": "250 ml", "grp": null, "o": 67}, {"id": "TC_6RR", "line": "TC", "code": "6RR", "name": "Topchic 6RR", "short": "6RR", "size": "250 ml", "grp": null, "o": 68}, {"id": "TC_7RR", "line": "TC", "code": "7RR", "name": "Topchic 7RR", "short": "7RR", "size": "250 ml", "grp": null, "o": 69}, {"id": "TC_6RV", "line": "TC", "code": "6RV", "name": "Topchic 6RV", "short": "6RV", "size": "250 ml", "grp": null, "o": 70}, {"id": "TC_10V", "line": "TC", "code": "10V", "name": "Topchic 10V", "short": "10V", "size": "250 ml", "grp": null, "o": 71}, {"id": "TC_11V", "line": "TC", "code": "11V", "name": "Topchic 11V", "short": "11V", "size": "250 ml", "grp": null, "o": 72}, {"id": "TC_3VV", "line": "TC", "code": "3VV", "name": "Topchic 3VV", "short": "3VV", "size": "250 ml", "grp": null, "o": 73}, {"id": "TC_5VV", "line": "TC", "code": "5VV", "name": "Topchic 5VV", "short": "5VV", "size": "250 ml", "grp": null, "o": 74}, {"id": "TC_6VV", "line": "TC", "code": "6VV", "name": "Topchic 6VV", "short": "6VV", "size": "250 ml", "grp": null, "o": 75}, {"id": "TC_11SV", "line": "TC", "code": "11SV", "name": "Topchic 11SV", "short": "11SV", "size": "250 ml", "grp": null, "o": 76}, {"id": "TC_4B", "line": "TC", "code": "4B", "name": "Topchic 4B", "short": "4B", "size": "250 ml", "grp": null, "o": 77}, {"id": "TC_5B", "line": "TC", "code": "5B", "name": "Topchic 5B", "short": "5B", "size": "250 ml", "grp": null, "o": 78}, {"id": "TC_6B", "line": "TC", "code": "6B", "name": "Topchic 6B", "short": "6B", "size": "250 ml", "grp": null, "o": 79}, {"id": "TC_7B", "line": "TC", "code": "7B", "name": "Topchic 7B", "short": "7B", "size": "250 ml", "grp": null, "o": 80}, {"id": "TC_8B", "line": "TC", "code": "8B", "name": "Topchic 8B", "short": "8B", "size": "250 ml", "grp": null, "o": 81}, {"id": "TC_7BN", "line": "TC", "code": "7BN", "name": "Topchic 7BN", "short": "7BN", "size": "250 ml", "grp": null, "o": 82}, {"id": "TC_4BP", "line": "TC", "code": "4BP", "name": "Topchic 4BP", "short": "4BP", "size": "250 ml", "grp": null, "o": 83}, {"id": "TC_5BP", "line": "TC", "code": "5BP", "name": "Topchic 5BP", "short": "5BP", "size": "250 ml", "grp": null, "o": 84}, {"id": "TC_6BP", "line": "TC", "code": "6BP", "name": "Topchic 6BP", "short": "6BP", "size": "250 ml", "grp": null, "o": 85}, {"id": "TC_10P", "line": "TC", "code": "10P", "name": "Topchic 10P", "short": "10P", "size": "250 ml", "grp": null, "o": 86}, {"id": "TC_11P", "line": "TC", "code": "11P", "name": "Topchic 11P", "short": "11P", "size": "250 ml", "grp": null, "o": 87}, {"id": "TC_BC", "line": "TC", "code": "BC", "name": "Topchic BC", "short": "BC", "size": "250 ml", "grp": null, "o": 88}, {"id": "TC_6NP", "line": "TC", "code": "6NP", "name": "Topchic 6NP", "short": "6NP", "size": "250 ml", "grp": null, "o": 89}, {"id": "TC_7NP", "line": "TC", "code": "7NP", "name": "Topchic 7NP", "short": "7NP", "size": "250 ml", "grp": null, "o": 90}, {"id": "TC_9NP", "line": "TC", "code": "9NP", "name": "Topchic 9NP", "short": "9NP", "size": "250 ml", "grp": null, "o": 91}, {"id": "TC_11SN", "line": "TC", "code": "11SN", "name": "Topchic 11SN", "short": "11SN", "size": "250 ml", "grp": null, "o": 92}, {"id": "TC_8CA", "line": "TC", "code": "8CA", "name": "Topchic 8CA", "short": "8CA", "size": "250 ml", "grp": null, "o": 93}, {"id": "TC_9N@BS", "line": "TC", "code": "9N@BS", "name": "Topchic 9N@BS", "short": "9N@BS", "size": "250 ml", "grp": null, "o": 94}, {"id": "TC_9N@BP", "line": "TC", "code": "9N@BP", "name": "Topchic 9N@BP", "short": "9N@BP", "size": "250 ml", "grp": null, "o": 95}, {"id": "TC_8N@KK", "line": "TC", "code": "8N@KK", "name": "Topchic 8N@KK", "short": "8N@KK", "size": "250 ml", "grp": null, "o": 96}, {"id": "TC_8N@GB", "line": "TC", "code": "8N@GB", "name": "Topchic 8N@GB", "short": "8N@GB", "size": "250 ml", "grp": null, "o": 97}, {"id": "TC_8N@BS", "line": "TC", "code": "8N@BS", "name": "Topchic 8N@BS", "short": "8N@BS", "size": "250 ml", "grp": null, "o": 98}, {"id": "TC_7N@BP", "line": "TC", "code": "7N@BP", "name": "Topchic 7N@BP", "short": "7N@BP", "size": "250 ml", "grp": null, "o": 99}, {"id": "TC_7N@BK", "line": "TC", "code": "7N@BK", "name": "Topchic 7N@BK", "short": "7N@BK", "size": "250 ml", "grp": null, "o": 100}, {"id": "TC_6N@GB", "line": "TC", "code": "6N@GB", "name": "Topchic 6N@GB", "short": "6N@GB", "size": "250 ml", "grp": null, "o": 101}, {"id": "TC_5N@BP", "line": "TC", "code": "5N@BP", "name": "Topchic 5N@BP", "short": "5N@BP", "size": "250 ml", "grp": null, "o": 102}, {"id": "TC_5N@BK", "line": "TC", "code": "5N@BK", "name": "Topchic 5N@BK", "short": "5N@BK", "size": "250 ml", "grp": null, "o": 103}, {"id": "TC_7RR@RR", "line": "TC", "code": "7RR@RR", "name": "Topchic 7RR@RR", "short": "7RR@RR", "size": "250 ml", "grp": null, "o": 104}, {"id": "TC_6BP@VA", "line": "TC", "code": "6BP@VA", "name": "Topchic 6BP@VA", "short": "6BP@VA", "size": "250 ml", "grp": null, "o": 105}, {"id": "TC_6VV@Pk", "line": "TC", "code": "6VV@Pk", "name": "Topchic 6VV@Pk", "short": "6VV@Pk", "size": "250 ml", "grp": null, "o": 106}, {"id": "TC_7AK@Pk", "line": "TC", "code": "7AK@Pk", "name": "Topchic 7AK@Pk", "short": "7AK@Pk", "size": "250 ml", "grp": null, "o": 107}, {"id": "TC_8CA@PB", "line": "TC", "code": "8CA@PB", "name": "Topchic 8CA@PB", "short": "8CA@PB", "size": "250 ml", "grp": null, "o": 108}, {"id": "TC_9N@Pk", "line": "TC", "code": "9N@Pk", "name": "Topchic 9N@Pk", "short": "9N@Pk", "size": "250 ml", "grp": null, "o": 109}, {"id": "TC_7BP@Pk", "line": "TC", "code": "7BP@Pk", "name": "Topchic 7BP@Pk", "short": "7BP@Pk", "size": "250 ml", "grp": null, "o": 110}, {"id": "TC_4R@VR", "line": "TC", "code": "4R@VR", "name": "Topchic 4R@VR", "short": "4R@VR", "size": "250 ml", "grp": null, "o": 111}, {"id": "CO_2A", "line": "CO", "code": "2A", "name": "Colorance 2A", "short": "2A", "size": "120 ml", "grp": null, "o": 112}, {"id": "CO_6A", "line": "CO", "code": "6A", "name": "Colorance 6A", "short": "6A", "size": "120 ml", "grp": null, "o": 113}, {"id": "CO_2N", "line": "CO", "code": "2N", "name": "Colorance 2N", "short": "2N", "size": "120 ml", "grp": null, "o": 114}, {"id": "CO_3N", "line": "CO", "code": "3N", "name": "Colorance 3N", "short": "3N", "size": "120 ml", "grp": null, "o": 115}, {"id": "CO_4N", "line": "CO", "code": "4N", "name": "Colorance 4N", "short": "4N", "size": "120 ml", "grp": null, "o": 116}, {"id": "CO_5N", "line": "CO", "code": "5N", "name": "Colorance 5N", "short": "5N", "size": "120 ml", "grp": null, "o": 117}, {"id": "CO_6N", "line": "CO", "code": "6N", "name": "Colorance 6N", "short": "6N", "size": "120 ml", "grp": null, "o": 118}, {"id": "CO_7N", "line": "CO", "code": "7N", "name": "Colorance 7N", "short": "7N", "size": "120 ml", "grp": null, "o": 119}, {"id": "CO_8N", "line": "CO", "code": "8N", "name": "Colorance 8N", "short": "8N", "size": "120 ml", "grp": null, "o": 120}, {"id": "CO_9N", "line": "CO", "code": "9N", "name": "Colorance 9N", "short": "9N", "size": "120 ml", "grp": null, "o": 121}, {"id": "CO_10N", "line": "CO", "code": "10N", "name": "Colorance 10N", "short": "10N", "size": "120 ml", "grp": null, "o": 122}, {"id": "CO_4NN", "line": "CO", "code": "4NN", "name": "Colorance 4NN", "short": "4NN", "size": "120 ml", "grp": null, "o": 123}, {"id": "CO_5NN", "line": "CO", "code": "5NN", "name": "Colorance 5NN", "short": "5NN", "size": "120 ml", "grp": null, "o": 124}, {"id": "CO_6NN", "line": "CO", "code": "6NN", "name": "Colorance 6NN", "short": "6NN", "size": "120 ml", "grp": null, "o": 125}, {"id": "CO_7NN", "line": "CO", "code": "7NN", "name": "Colorance 7NN", "short": "7NN", "size": "120 ml", "grp": null, "o": 126}, {"id": "CO_8NN", "line": "CO", "code": "8NN", "name": "Colorance 8NN", "short": "8NN", "size": "120 ml", "grp": null, "o": 127}, {"id": "CO_5NA", "line": "CO", "code": "5NA", "name": "Colorance 5NA", "short": "5NA", "size": "120 ml", "grp": null, "o": 128}, {"id": "CO_7NA", "line": "CO", "code": "7NA", "name": "Colorance 7NA", "short": "7NA", "size": "120 ml", "grp": null, "o": 129}, {"id": "CO_9NA", "line": "CO", "code": "9NA", "name": "Colorance 9NA", "short": "9NA", "size": "120 ml", "grp": null, "o": 130}, {"id": "CO_6SB", "line": "CO", "code": "6SB", "name": "Colorance 6SB", "short": "6SB", "size": "120 ml", "grp": null, "o": 131}, {"id": "CO_8SB", "line": "CO", "code": "8SB", "name": "Colorance 8SB", "short": "8SB", "size": "120 ml", "grp": null, "o": 132}, {"id": "CO_5MB", "line": "CO", "code": "5MB", "name": "Colorance 5MB", "short": "5MB", "size": "120 ml", "grp": null, "o": 133}, {"id": "CO_7MB", "line": "CO", "code": "7MB", "name": "Colorance 7MB", "short": "7MB", "size": "120 ml", "grp": null, "o": 134}, {"id": "CO_4G", "line": "CO", "code": "4G", "name": "Colorance 4G", "short": "4G", "size": "120 ml", "grp": null, "o": 135}, {"id": "CO_7G", "line": "CO", "code": "7G", "name": "Colorance 7G", "short": "7G", "size": "120 ml", "grp": null, "o": 136}, {"id": "CO_8G", "line": "CO", "code": "8G", "name": "Colorance 8G", "short": "8G", "size": "120 ml", "grp": null, "o": 137}, {"id": "CO_10G", "line": "CO", "code": "10G", "name": "Colorance 10G", "short": "10G", "size": "120 ml", "grp": null, "o": 138}, {"id": "CO_5BG", "line": "CO", "code": "5BG", "name": "Colorance 5BG", "short": "5BG", "size": "120 ml", "grp": null, "o": 139}, {"id": "CO_7BG", "line": "CO", "code": "7BG", "name": "Colorance 7BG", "short": "7BG", "size": "120 ml", "grp": null, "o": 140}, {"id": "CO_8GB", "line": "CO", "code": "8GB", "name": "Colorance 8GB", "short": "8GB", "size": "120 ml", "grp": null, "o": 141}, {"id": "CO_9GB", "line": "CO", "code": "9GB", "name": "Colorance 9GB", "short": "9GB", "size": "120 ml", "grp": null, "o": 142}, {"id": "CO_5K", "line": "CO", "code": "5K", "name": "Colorance 5K", "short": "5K", "size": "120 ml", "grp": null, "o": 143}, {"id": "CO_6K", "line": "CO", "code": "6K", "name": "Colorance 6K", "short": "6K", "size": "120 ml", "grp": null, "o": 144}, {"id": "CO_8K", "line": "CO", "code": "8K", "name": "Colorance 8K", "short": "8K", "size": "120 ml", "grp": null, "o": 145}, {"id": "CO_6KG", "line": "CO", "code": "6KG", "name": "Colorance 6KG", "short": "6KG", "size": "120 ml", "grp": null, "o": 146}, {"id": "CO_7KG", "line": "CO", "code": "7KG", "name": "Colorance 7KG", "short": "7KG", "size": "120 ml", "grp": null, "o": 147}, {"id": "CO_9KG", "line": "CO", "code": "9KG", "name": "Colorance 9KG", "short": "9KG", "size": "120 ml", "grp": null, "o": 148}, {"id": "CO_6KR", "line": "CO", "code": "6KR", "name": "Colorance 6KR", "short": "6KR", "size": "120 ml", "grp": null, "o": 149}, {"id": "CO_5R", "line": "CO", "code": "5R", "name": "Colorance 5R", "short": "5R", "size": "120 ml", "grp": null, "o": 150}, {"id": "CO_6R", "line": "CO", "code": "6R", "name": "Colorance 6R", "short": "6R", "size": "120 ml", "grp": null, "o": 151}, {"id": "CO_5RB", "line": "CO", "code": "5RB", "name": "Colorance 5RB", "short": "5RB", "size": "120 ml", "grp": null, "o": 152}, {"id": "CO_6RB", "line": "CO", "code": "6RB", "name": "Colorance 6RB", "short": "6RB", "size": "120 ml", "grp": null, "o": 153}, {"id": "CO_7RB", "line": "CO", "code": "7RB", "name": "Colorance 7RB", "short": "7RB", "size": "120 ml", "grp": null, "o": 154}, {"id": "CO_7RR", "line": "CO", "code": "7RR", "name": "Colorance 7RR", "short": "7RR", "size": "120 ml", "grp": null, "o": 155}, {"id": "CO_8OR", "line": "CO", "code": "8OR", "name": "Colorance 8OR", "short": "8OR", "size": "120 ml", "grp": null, "o": 156}, {"id": "CO_10V", "line": "CO", "code": "10V", "name": "Colorance 10V", "short": "10V", "size": "120 ml", "grp": null, "o": 157}, {"id": "CO_5VV", "line": "CO", "code": "5VV", "name": "Colorance 5VV", "short": "5VV", "size": "120 ml", "grp": null, "o": 158}, {"id": "CO_6VV", "line": "CO", "code": "6VV", "name": "Colorance 6VV", "short": "6VV", "size": "120 ml", "grp": null, "o": 159}, {"id": "CO_5B", "line": "CO", "code": "5B", "name": "Colorance 5B", "short": "5B", "size": "120 ml", "grp": null, "o": 160}, {"id": "CO_6B", "line": "CO", "code": "6B", "name": "Colorance 6B", "short": "6B", "size": "120 ml", "grp": null, "o": 161}, {"id": "CO_7B", "line": "CO", "code": "7B", "name": "Colorance 7B", "short": "7B", "size": "120 ml", "grp": null, "o": 162}, {"id": "CO_8BA", "line": "CO", "code": "8BA", "name": "Colorance 8BA", "short": "8BA", "size": "120 ml", "grp": null, "o": 163}, {"id": "CO_9BA", "line": "CO", "code": "9BA", "name": "Colorance 9BA", "short": "9BA", "size": "120 ml", "grp": null, "o": 164}, {"id": "CO_4BP", "line": "CO", "code": "4BP", "name": "Colorance 4BP", "short": "4BP", "size": "120 ml", "grp": null, "o": 165}, {"id": "CO_5BP", "line": "CO", "code": "5BP", "name": "Colorance 5BP", "short": "5BP", "size": "120 ml", "grp": null, "o": 166}, {"id": "CO_6BP", "line": "CO", "code": "6BP", "name": "Colorance 6BP", "short": "6BP", "size": "120 ml", "grp": null, "o": 167}, {"id": "CO_10P", "line": "CO", "code": "10P", "name": "Colorance 10P", "short": "10P", "size": "120 ml", "grp": null, "o": 168}, {"id": "CO_CLEAR", "line": "CO", "code": "CLEAR", "name": "Colorance CLEAR", "short": "CLEAR", "size": "120 ml", "grp": null, "o": 169}, {"id": "CO_10BA", "line": "CO", "code": "10BA", "name": "Colorance 10BA", "short": "10BA", "size": "120 ml", "grp": null, "o": 170}, {"id": "CO_10BB", "line": "CO", "code": "10BB", "name": "Colorance 10BB", "short": "10BB", "size": "120 ml", "grp": null, "o": 171}, {"id": "CO_10BG", "line": "CO", "code": "10BG", "name": "Colorance 10BG", "short": "10BG", "size": "120 ml", "grp": null, "o": 172}, {"id": "CO_10BS", "line": "CO", "code": "10BS", "name": "Colorance 10BS", "short": "10BS", "size": "120 ml", "grp": null, "o": 173}, {"id": "CO_10BV", "line": "CO", "code": "10BV", "name": "Colorance 10BV", "short": "10BV", "size": "120 ml", "grp": null, "o": 174}, {"id": "CO_10GP", "line": "CO", "code": "10GP", "name": "Colorance 10GP", "short": "10GP", "size": "120 ml", "grp": null, "o": 175}, {"id": "CO_8BV", "line": "CO", "code": "8BV", "name": "Colorance 8BV", "short": "8BV", "size": "120 ml", "grp": null, "o": 176}, {"id": "CO_8BP", "line": "CO", "code": "8BP", "name": "Colorance 8BP", "short": "8BP", "size": "120 ml", "grp": null, "o": 177}, {"id": "CO_10BP", "line": "CO", "code": "10BP", "name": "Colorance 10BP", "short": "10BP", "size": "120 ml", "grp": null, "o": 178}, {"id": "CO_8GP", "line": "CO", "code": "8GP", "name": "Colorance 8GP", "short": "8GP", "size": "120 ml", "grp": null, "o": 179}, {"id": "CO_8CA", "line": "CO", "code": "8CA", "name": "Colorance 8CA", "short": "8CA", "size": "120 ml", "grp": null, "o": 180}, {"id": "CO_6_NATURAL", "line": "CO", "code": "6 NATURAL", "name": "Colorance 6 NATURAL", "short": "6 NATURAL", "size": "120 ml", "grp": null, "o": 181}, {"id": "CO_7_NATURAL", "line": "CO", "code": "7 NATURAL", "name": "Colorance 7 NATURAL", "short": "7 NATURAL", "size": "120 ml", "grp": null, "o": 182}, {"id": "CO_8_NATURAL", "line": "CO", "code": "8 NATURAL", "name": "Colorance 8 NATURAL", "short": "8 NATURAL", "size": "120 ml", "grp": null, "o": 183}, {"id": "CO_7N@BP", "line": "CO", "code": "7N@BP", "name": "Colorance 7N@BP", "short": "7N@BP", "size": "120 ml", "grp": null, "o": 184}, {"id": "CO_6N@GB", "line": "CO", "code": "6N@GB", "name": "Colorance 6N@GB", "short": "6N@GB", "size": "120 ml", "grp": null, "o": 185}, {"id": "CO_5N@BP", "line": "CO", "code": "5N@BP", "name": "Colorance 5N@BP", "short": "5N@BP", "size": "120 ml", "grp": null, "o": 186}, {"id": "CO_7RR@RR", "line": "CO", "code": "7RR@RR", "name": "Colorance 7RR@RR", "short": "7RR@RR", "size": "120 ml", "grp": null, "o": 187}, {"id": "CO_8SB@Pk", "line": "CO", "code": "8SB@Pk", "name": "Colorance 8SB@Pk", "short": "8SB@Pk", "size": "120 ml", "grp": null, "o": 188}, {"id": "CO_6VV@Pk", "line": "CO", "code": "6VV@Pk", "name": "Colorance 6VV@Pk", "short": "6VV@Pk", "size": "120 ml", "grp": null, "o": 189}, {"id": "CO_7AK@Pk", "line": "CO", "code": "7AK@Pk", "name": "Colorance 7AK@Pk", "short": "7AK@Pk", "size": "120 ml", "grp": null, "o": 190}, {"id": "CO_8CA@PB", "line": "CO", "code": "8CA@PB", "name": "Colorance 8CA@PB", "short": "8CA@PB", "size": "120 ml", "grp": null, "o": 191}, {"id": "GT_8AV", "line": "GT", "code": "8AV", "name": "Gloss Tones 8AV", "short": "8AV", "size": "", "grp": null, "o": 192}, {"id": "GT_8V", "line": "GT", "code": "8V", "name": "Gloss Tones 8V", "short": "8V", "size": "", "grp": null, "o": 193}, {"id": "GT_8VPk", "line": "GT", "code": "8VPk", "name": "Gloss Tones 8VPk", "short": "8VPk", "size": "", "grp": null, "o": 194}, {"id": "GT_9BN", "line": "GT", "code": "9BN", "name": "Gloss Tones 9BN", "short": "9BN", "size": "", "grp": null, "o": 195}, {"id": "GT_9CP", "line": "GT", "code": "9CP", "name": "Gloss Tones 9CP", "short": "9CP", "size": "", "grp": null, "o": 196}, {"id": "GT_9PN", "line": "GT", "code": "9PN", "name": "Gloss Tones 9PN", "short": "9PN", "size": "", "grp": null, "o": 197}, {"id": "GT_9PV", "line": "GT", "code": "9PV", "name": "Gloss Tones 9PV", "short": "9PV", "size": "", "grp": null, "o": 198}, {"id": "GT_9S", "line": "GT", "code": "9S", "name": "Gloss Tones 9S", "short": "9S", "size": "", "grp": null, "o": 199}, {"id": "GT_9V", "line": "GT", "code": "9V", "name": "Gloss Tones 9V", "short": "9V", "size": "", "grp": null, "o": 200}, {"id": "GT_10AV", "line": "GT", "code": "10AV", "name": "Gloss Tones 10AV", "short": "10AV", "size": "", "grp": null, "o": 201}, {"id": "GT_10B", "line": "GT", "code": "10B", "name": "Gloss Tones 10B", "short": "10B", "size": "", "grp": null, "o": 202}, {"id": "GT_10BN", "line": "GT", "code": "10BN", "name": "Gloss Tones 10BN", "short": "10BN", "size": "", "grp": null, "o": 203}, {"id": "GT_10PV", "line": "GT", "code": "10PV", "name": "Gloss Tones 10PV", "short": "10PV", "size": "", "grp": null, "o": 204}, {"id": "GT_10S", "line": "GT", "code": "10S", "name": "Gloss Tones 10S", "short": "10S", "size": "", "grp": null, "o": 205}, {"id": "GT_10VPk", "line": "GT", "code": "10VPk", "name": "Gloss Tones 10VPk", "short": "10VPk", "size": "", "grp": null, "o": 206}, {"id": "GT_CLEAR", "line": "GT", "code": "CLEAR", "name": "Gloss Tones CLEAR", "short": "CLEAR", "size": "", "grp": null, "o": 207}, {"id": "GT_CLEAR_500ML", "line": "GT", "code": "CLEAR 500ML", "name": "Gloss Tones CLEAR 500ML", "short": "CLEAR 500ML", "size": "", "grp": null, "o": 208}, {"id": "BB_SilkLift_Control_Pearl_Lv_6_8_500g", "line": "BB", "code": "SilkLift Control Pearl Lv 6-8 500g", "name": "SilkLift Control Pearl Lv 6-8 500g", "short": "Control pearl", "size": "", "grp": "Lightener", "o": 209}, {"id": "BB_SilkLift_Clay", "line": "BB", "code": "SilkLift Clay", "name": "SilkLift Clay", "short": "Silk clay", "size": "", "grp": "Lightener", "o": 210}, {"id": "BB_SilkLift_2_in_1_Serum_75ml", "line": "BB", "code": "SilkLift 2-in-1 Serum 75ml", "name": "SilkLift 2-in-1 Serum 75ml", "short": "Silk 2in1 serum", "size": "", "grp": "Lightener", "o": 211}, {"id": "BB_SilkLift_Strong_500g", "line": "BB", "code": "SilkLift Strong 500g", "name": "SilkLift Strong 500g", "short": "Silk strong", "size": "", "grp": "Lightener", "o": 212}, {"id": "BB_SilkLift_Zero_Ammonia_500g", "line": "BB", "code": "SilkLift Zero Ammonia 500g", "name": "SilkLift Zero Ammonia 500g", "short": "Silk zero ammonia", "size": "", "grp": "Lightener", "o": 213}, {"id": "BB_Brightener_Natural_60ml", "line": "BB", "code": "Brightener Natural 60ml", "name": "Brightener Natural 60ml", "short": "Brightener natural", "size": "", "grp": "Lightener", "o": 214}, {"id": "BB_Brightener_Silver_60ml", "line": "BB", "code": "Brightener Silver 60ml", "name": "Brightener Silver 60ml", "short": "Brightener silver", "size": "", "grp": "Lightener", "o": 215}, {"id": "BB_Dust_Free_Blue_Powder_500g", "line": "BB", "code": "Dust Free Blue Powder 500g", "name": "Dust Free Blue Powder 500g", "short": "Dust free blue", "size": "", "grp": "Lightener", "o": 216}, {"id": "BB_Dust_Free_Powder_1000g", "line": "BB", "code": "Dust Free Powder 1000g", "name": "Dust Free Powder 1000g", "short": "Dust free 1000g", "size": "", "grp": "Lightener", "o": 217}, {"id": "BB_SilkLift_Developer_3_10_vol_750ml", "line": "BB", "code": "SilkLift Developer 3% / 10 vol 750ml", "name": "SilkLift Developer 3% / 10 vol 750ml", "short": "Silklift 3%", "size": "", "grp": "SilkLift developer", "o": 218}, {"id": "BB_SilkLift_Developer_6_20_vol_750ml", "line": "BB", "code": "SilkLift Developer 6% / 20 vol 750ml", "name": "SilkLift Developer 6% / 20 vol 750ml", "short": "Silklift 6%", "size": "", "grp": "SilkLift developer", "o": 219}, {"id": "BB_SilkLift_Developer_9_30_vol_750ml", "line": "BB", "code": "SilkLift Developer 9% / 30 vol 750ml", "name": "SilkLift Developer 9% / 30 vol 750ml", "short": "Silklift 9%", "size": "", "grp": "SilkLift developer", "o": 220}, {"id": "BB_System_Developer_2_7_vol_1L", "line": "BB", "code": "System Developer 2% / 7 vol 1L", "name": "System Developer 2% / 7 vol 1L", "short": "7vol", "size": "", "grp": "System developer", "o": 221}, {"id": "BB_System_Developer_3_10_vol_1L", "line": "BB", "code": "System Developer 3% / 10 vol 1L", "name": "System Developer 3% / 10 vol 1L", "short": "10vol", "size": "", "grp": "System developer", "o": 222}, {"id": "BB_System_Developer_6_20_vol_1L", "line": "BB", "code": "System Developer 6% / 20 vol 1L", "name": "System Developer 6% / 20 vol 1L", "short": "20vol", "size": "", "grp": "System developer", "o": 223}, {"id": "BB_System_Developer_9_30_vol_1L", "line": "BB", "code": "System Developer 9% / 30 vol 1L", "name": "System Developer 9% / 30 vol 1L", "short": "30vol", "size": "", "grp": "System developer", "o": 224}, {"id": "BB_System_Developer_12_40_vol_1L", "line": "BB", "code": "System Developer 12% / 40 vol 1L", "name": "System Developer 12% / 40 vol 1L", "short": "40vol", "size": "", "grp": "System developer", "o": 225}, {"id": "BB_Structure_Equalizer_150ml", "line": "BB", "code": "Structure Equalizer 150ml", "name": "Structure Equalizer 150ml", "short": "Structure equalizer", "size": "", "grp": "Support", "o": 226}, {"id": "BB_Color_Intensive_Serum_12x18ml", "line": "BB", "code": "Color Intensive Serum 12x18ml", "name": "Color Intensive Serum 12x18ml", "short": "Color serum box", "size": "", "grp": "Serums", "o": 227}, {"id": "BB_Color_ER_Intensive_Serum_12x18ml", "line": "BB", "code": "Color ER Intensive Serum 12x18ml", "name": "Color ER Intensive Serum 12x18ml", "short": "Color ER serum box", "size": "", "grp": "Serums", "o": 228}, {"id": "BB_B_H_Intensive_Serum_12x18ml", "line": "BB", "code": "B&H Intensive Serum 12x18ml", "name": "B&H Intensive Serum 12x18ml", "short": "B&H serum box", "size": "", "grp": "Serums", "o": 229}, {"id": "BB_JS_Intensive_Serum_12x18ml", "line": "BB", "code": "JS Intensive Serum 12x18ml", "name": "JS Intensive Serum 12x18ml", "short": "JS serum box", "size": "", "grp": "Serums", "o": 230}, {"id": "BB_RR_Intensive_Serum_12x18ml", "line": "BB", "code": "RR Intensive Serum 12x18ml", "name": "RR Intensive Serum 12x18ml", "short": "RR serum box", "size": "", "grp": "Serums", "o": 231}, {"id": "BB_UV_Intensive_Serum_12x18ml", "line": "BB", "code": "UV Intensive Serum 12x18ml", "name": "UV Intensive Serum 12x18ml", "short": "UV serum box", "size": "", "grp": "Serums", "o": 232}, {"id": "BB_CW_Intensive_Serum_12x18ml", "line": "BB", "code": "CW Intensive Serum 12x18ml", "name": "CW Intensive Serum 12x18ml", "short": "CW serum box", "size": "", "grp": "Serums", "o": 233}, {"id": "CR_Bond_Pro_Fortifying_Shampoo_1L", "line": "CR", "code": "Bond Pro Fortifying Shampoo 1L", "name": "Bond Pro Fortifying Shampoo 1L", "short": "BP shampoo", "size": "", "grp": "Dualsenses care", "o": 234}, {"id": "CR_Bond_Pro_Conditioner_1L", "line": "CR", "code": "Bond Pro Conditioner 1L", "name": "Bond Pro Conditioner 1L", "short": "BP conditioner", "size": "", "grp": "Dualsenses care", "o": 235}, {"id": "CR_Blondes_Highlights_Anti_Yellow_Conditioner_1L", "line": "CR", "code": "Blondes & Highlights Anti-Yellow Conditioner 1L", "name": "Blondes & Highlights Anti-Yellow Conditioner 1L", "short": "B&H conditioner", "size": "", "grp": "Dualsenses care", "o": 236}, {"id": "CR_Blondes_Highlights_Shampoo_1L", "line": "CR", "code": "Blondes & Highlights Shampoo 1L", "name": "Blondes & Highlights Shampoo 1L", "short": "B&H shampoo", "size": "", "grp": "Dualsenses care", "o": 237}, {"id": "CR_Rich_Repair_Restoring_Conditioner_1L", "line": "CR", "code": "Rich Repair Restoring Conditioner 1L", "name": "Rich Repair Restoring Conditioner 1L", "short": "RR conditioner", "size": "", "grp": "Dualsenses care", "o": 238}, {"id": "CR_Color_Brilliance_Serum_Spray_150ml", "line": "CR", "code": "Color Brilliance Serum Spray 150ml", "name": "Color Brilliance Serum Spray 150ml", "short": "Color serum spray", "size": "", "grp": "Dualsenses care", "o": 239}], "onHand": {"TC_2N": 0, "TC_3N": 6, "TC_4N": 4, "TC_5N": 3, "TC_6N": 3, "TC_7N": 4, "TC_8N": 3, "TC_9N": 2, "TC_10N": 2, "TC_11N": 4, "TC_3NN": 0, "TC_4NN": 0, "TC_5NN": 4, "TC_6NN": 3, "TC_7NN": 3, "TC_8NN": 3, "TC_9NN": 2, "TC_4NA": 4, "TC_5NA": 2, "TC_6NA": 2, "TC_7NA": 1, "TC_8NA": 2, "TC_9NA": 1, "TC_2A": 0, "TC_5A": 2, "TC_6A": 2, "TC_7A": 2, "TC_8A": 0, "TC_9A": 0, "TC_10A": 0, "TC_11A": 0, "TC_6SB": 2, "TC_7SB": 2, "TC_8SB": 0, "TC_5MB": 0, "TC_6MB": 0, "TC_7MB": 2, "TC_4G": 0, "TC_6G": 0, "TC_7G": 0, "TC_8G": 0, "TC_9G": 2, "TC_9GN": 0, "TC_5BG": 3, "TC_7BG": 3, "TC_5GB": 0, "TC_6GB": 2, "TC_7GB": 2, "TC_8GB": 3, "TC_9GB": 0, "TC_10GB": 0, "TC_5K": 0, "TC_6K": 2, "TC_7K": 0, "TC_8K": 0, "TC_8KN": 0, "TC_6KG": 2, "TC_7KG": 0, "TC_8KG": 0, "TC_6KR": 3, "TC_7OO": 0, "TC_5R": 2, "TC_6R": 0, "TC_5RB": 2, "TC_6RB": 3, "TC_7RB": 3, "TC_7RO": 0, "TC_5RR": 3, "TC_6RR": 3, "TC_7RR": 0, "TC_6RV": 2, "TC_10V": 0, "TC_11V": 0, "TC_3VV": 0, "TC_5VV": 4, "TC_6VV": 0, "TC_11SV": 0, "TC_4B": 0, "TC_5B": 0, "TC_6B": 2, "TC_7B": 2, "TC_8B": 0, "TC_7BN": 0, "TC_4BP": 0, "TC_5BP": 3, "TC_6BP": 3, "TC_10P": 0, "TC_11P": 0, "TC_BC": 2, "TC_6NP": 2, "TC_7NP": 2, "TC_9NP": 1, "TC_11SN": 0, "TC_8CA": 0, "TC_9N@BS": 1, "TC_9N@BP": 1, "TC_8N@KK": 0, "TC_8N@GB": 2, "TC_8N@BS": 0, "TC_7N@BP": 3, "TC_7N@BK": 0, "TC_6N@GB": 3, "TC_5N@BP": 2, "TC_5N@BK": 0, "TC_7RR@RR": 3, "TC_6BP@VA": 0, "TC_6VV@Pk": 0, "TC_7AK@Pk": 0, "TC_8CA@PB": 0, "TC_9N@Pk": 0, "TC_7BP@Pk": 0, "TC_4R@VR": 2, "CO_2A": 2, "CO_6A": 6, "CO_2N": 3, "CO_3N": 2, "CO_4N": 5, "CO_5N": 3, "CO_6N": 8, "CO_7N": 5, "CO_8N": 7, "CO_9N": 5, "CO_10N": 5, "CO_4NN": 3, "CO_5NN": 2, "CO_6NN": 4, "CO_7NN": 3, "CO_8NN": 3, "CO_5NA": 6, "CO_7NA": 7, "CO_9NA": 4, "CO_6SB": 0, "CO_8SB": 3, "CO_5MB": 4, "CO_7MB": 3, "CO_4G": 3, "CO_7G": 4, "CO_8G": 4, "CO_10G": 5, "CO_5BG": 4, "CO_7BG": 4, "CO_8GB": 7, "CO_9GB": 6, "CO_5K": 2, "CO_6K": 3, "CO_8K": 2, "CO_6KG": 3, "CO_7KG": 2, "CO_9KG": 3, "CO_6KR": 3, "CO_5R": 3, "CO_6R": 3, "CO_5RB": 3, "CO_6RB": 3, "CO_7RB": 2, "CO_7RR": 0, "CO_8OR": 2, "CO_10V": 9, "CO_5VV": 3, "CO_6VV": 3, "CO_5B": 3, "CO_6B": 2, "CO_7B": 0, "CO_8BA": 6, "CO_9BA": 5, "CO_4BP": 2, "CO_5BP": 4, "CO_6BP": 4, "CO_10P": 5, "CO_CLEAR": 3, "CO_10BA": 5, "CO_10BB": 2, "CO_10BG": 7, "CO_10BS": 7, "CO_10BV": 3, "CO_10GP": 3, "CO_8BV": 2, "CO_8BP": 3, "CO_10BP": 2, "CO_8GP": 2, "CO_8CA": 2, "CO_6_NATURAL": 3, "CO_7_NATURAL": 4, "CO_8_NATURAL": 3, "CO_7N@BP": 4, "CO_6N@GB": 4, "CO_5N@BP": 3, "CO_7RR@RR": 4, "CO_8SB@Pk": 2, "CO_6VV@Pk": 3, "CO_7AK@Pk": 0, "CO_8CA@PB": 2, "BB_SilkLift_Control_Pearl_Lv_6_8_500g": 3, "BB_SilkLift_Clay": 4, "BB_SilkLift_2_in_1_Serum_75ml": 0, "BB_SilkLift_Strong_500g": 30, "BB_SilkLift_Zero_Ammonia_500g": 26, "BB_Brightener_Natural_60ml": 24, "BB_Brightener_Silver_60ml": 7, "BB_Dust_Free_Blue_Powder_500g": 3, "BB_Dust_Free_Powder_1000g": 7, "BB_SilkLift_Developer_3_10_vol_750ml": 4, "BB_SilkLift_Developer_6_20_vol_750ml": 3, "BB_SilkLift_Developer_9_30_vol_750ml": 0, "BB_System_Developer_2_7_vol_1L": 31, "BB_System_Developer_3_10_vol_1L": 16, "BB_System_Developer_6_20_vol_1L": 15, "BB_System_Developer_9_30_vol_1L": 6, "BB_System_Developer_12_40_vol_1L": 5, "BB_Structure_Equalizer_150ml": 2, "BB_Color_Intensive_Serum_12x18ml": 3, "BB_Color_ER_Intensive_Serum_12x18ml": 0, "BB_B_H_Intensive_Serum_12x18ml": 2, "BB_JS_Intensive_Serum_12x18ml": 0, "BB_RR_Intensive_Serum_12x18ml": 1, "BB_UV_Intensive_Serum_12x18ml": 0, "BB_CW_Intensive_Serum_12x18ml": 0, "CR_Bond_Pro_Fortifying_Shampoo_1L": 3, "CR_Bond_Pro_Conditioner_1L": 3, "CR_Blondes_Highlights_Anti_Yellow_Conditioner_1L": 3, "CR_Blondes_Highlights_Shampoo_1L": 3, "CR_Rich_Repair_Restoring_Conditioner_1L": 3, "CR_Color_Brilliance_Serum_Spray_150ml": 3}, "needsCount": ["GT_8AV", "GT_8V", "GT_8VPk", "GT_9BN", "GT_9CP", "GT_9PN", "GT_9PV", "GT_9S", "GT_9V", "GT_10AV", "GT_10B", "GT_10BN", "GT_10PV", "GT_10S", "GT_10VPk", "GT_CLEAR", "GT_CLEAR_500ML", "CR_Bond_Pro_Fortifying_Shampoo_1L", "CR_Bond_Pro_Conditioner_1L", "CR_Blondes_Highlights_Anti_Yellow_Conditioner_1L", "CR_Blondes_Highlights_Shampoo_1L", "CR_Rich_Repair_Restoring_Conditioner_1L", "CR_Color_Brilliance_Serum_Spray_150ml"]};
+var LOGO='data:image/png;base64,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';
+var CFG={supabaseUrl:'https://idqxogxvawruasyfljcp.supabase.co',supabaseKey:'sb_publishable_ejWh-BETnLSqOMW2ACcgpQ_Og7MoyMt'};
+var KEY='vrInv_v2',UNL='vrInv_unlock',CFGK='vrInv_cfg';
+var LINES=[['TC','Topchic'],['CO','Colorance'],['GT','Gloss Tones'],['BB','Backbar'],['CR','Care']];
+var S=null,view='home',lineSel='TC',q='',unlocked=false;
+
+function $(s){return document.querySelector(s);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function toast(m){var t=$('#toast');t.textContent=m;t.className='on';clearTimeout(toast._t);toast._t=setTimeout(function(){t.className='';},2200);}
+function lineName(l){for(var i=0;i<LINES.length;i++)if(LINES[i][0]===l)return LINES[i][1];return l;}
+function pad(n){return n<10?'0'+n:''+n;}
+function ymd(d){d=d||new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function weekKey(t){var d=new Date(t||Date.now());var day=(d.getDay()+6)%7;return ymd(new Date(d.getFullYear(),d.getMonth(),d.getDate()-day));}
+function fmtDate(t){var d=new Date(t);return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}
+
+/* ---------- state ---------- */
+function seedState(){
+  var st={v:1,pin:null,products:{},onHand:{},par:{},onDemand:{},onSale:{},loc:{},barcodes:{},verified:{},log:[],emp:{},empHist:{},countDraft:{},orders:[],cart:{},recv:null,todo:{trash:true},karen:'',lastEmp:Date.now(),updated:Date.now()};
+  SEED.products.forEach(function(p){st.products[p.id]=p;});
+  Object.keys(SEED.onHand).forEach(function(k){st.onHand[k]=SEED.onHand[k];});
+  st.log.push({t:Date.now(),k:'import',note:"Starting numbers: Charlene's updated Nov sheet (Nov 22, trash tallied, Nov 19 shipment included). Not yet physically counted."});
+  return st;
+}
+function load(){
+  try{var r=localStorage.getItem(KEY);if(r){S=JSON.parse(r);return;}}catch(e){}
+  S=seedState();save(true);
+}
+var pushT=null;
+function save(noSync){
+  S.updated=Date.now();
+  try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+  if(!noSync)cloudPush();
+}
+function cfg(){var c={supabaseUrl:CFG.supabaseUrl,supabaseKey:CFG.supabaseKey};try{var x=JSON.parse(localStorage.getItem(CFGK)||'{}');if(x.supabaseUrl)c.supabaseUrl=x.supabaseUrl;if(x.supabaseKey)c.supabaseKey=x.supabaseKey;}catch(e){}return c;}
+function setSync(t){var e=$('#sync');if(e)e.textContent=t;}
+function hdrs(c,x){x.apikey=c.supabaseKey;if(/^eyJ/.test(c.supabaseKey))x.Authorization='Bearer '+c.supabaseKey;return x;}
+function cloudPush(){
+  var c=cfg();if(!c.supabaseUrl){setSync('Saved on this device');return;}
+  clearTimeout(pushT);pushT=setTimeout(function(){
+    setSync('Syncing…');
+    fetch(c.supabaseUrl+'/rest/v1/app_state',{method:'POST',headers:hdrs(c,{'Content-Type':'application/json',Prefer:'resolution=merge-duplicates'}),body:JSON.stringify({id:'main',data:S,updated_at:new Date(S.updated).toISOString()})})
+    .then(function(r){setSync(r.ok?'Synced':'Sync failed');}).catch(function(){setSync('Offline – saved here');});
+  },800);
+}
+function cloudPull(done){
+  var c=cfg();if(!c.supabaseUrl){done();return;}
+  fetch(c.supabaseUrl+'/rest/v1/app_state?id=eq.main&select=data,updated_at',{headers:hdrs(c,{})})
+  .then(function(r){return r.json();}).then(function(rows){
+    if(rows&&rows[0]&&rows[0].data&&(rows[0].data.updated||0)>(S.updated||0)){S=rows[0].data;try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+    setSync('Synced');done();
+  }).catch(function(){setSync('Offline – using this device');done();});
+}
+function logEv(k,id,qn,note){S.log.push({t:Date.now(),k:k,id:id,q:qn,note:note});if(S.log.length>4000)S.log.splice(0,S.log.length-4000);}
+
+/* ---------- product helpers ---------- */
+function plist(l){return Object.keys(S.products).map(function(k){return S.products[k];}).filter(function(p){return !l||p.line===l;}).sort(function(a,b){return a.o-b.o;});}
+function oh(id){var v=S.onHand[id];return v==null?null:v;}
+function incoming(id){var n=0;S.orders.forEach(function(o){if(o.status==='sent'){o.lines.forEach(function(l){if(l.id===id)n+=l.qty;});}});return n;}
+function status(p){
+  if(S.onDemand[p.id])return 'od';
+  var v=oh(p.id);if(v==null)return 'unc';
+  var par=S.par[p.id]||0;if(par<=0)return 'nopar';
+  if(v<=0)return 'out';if(v<par)return 'low';return 'ok';
+}
+function suggest(p){
+  if(S.onDemand[p.id])return 0;var par=S.par[p.id]||0;if(par<=0)return 0;var v=oh(p.id);if(v==null)return 0;
+  return Math.max(0,par-v-incoming(p.id));
+}
+function grpOf(p){
+  if(p.line==='BB'||p.line==='CR')return p.grp||'Other';
+  if(p.code.indexOf('@')>-1)return '@ shades';
+  var m=p.code.match(/^(\d+)/);return m?('Level '+m[1]):'Other';
+}
+function grpOrder(g){var m=g.match(/^Level (\d+)/);if(m)return parseInt(m[1],10);if(g==='@ shades')return 98;return 99;}
+function groups(list){
+  var map={},order=[];
+  list.forEach(function(p){var g=grpOf(p);if(!map[g]){map[g]=[];order.push(g);}map[g].push(p);});
+  if(list.length&&(list[0].line==='TC'||list[0].line==='CO'||list[0].line==='GT'))order.sort(function(a,b){return grpOrder(a)-grpOrder(b);});
+  return order.map(function(g){return [g,map[g]];});
+}
+function matchQ(p,qq){if(!qq)return true;qq=qq.toLowerCase();return (p.code+' '+p.name+' '+p.short).toLowerCase().indexOf(qq)>-1;}
+function tag(p){return p.line==='TC'||p.line==='CO'||p.line==='GT';}
+function label(p){return tag(p)?p.code:p.name;}
+
+/* ---------- PIN ---------- */
+function hash(s){
+  if(window.crypto&&crypto.subtle&&window.TextEncoder){
+    return crypto.subtle.digest('SHA-256',new TextEncoder().encode('vr:'+s)).then(function(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return ('0'+x.toString(16)).slice(-2);}).join('');});
+  }
+  var h=5381;for(var i=0;i<s.length;i++){h=((h<<5)+h)+s.charCodeAt(i);h|=0;}return Promise.resolve('f'+h);
+}
+var pinBuf='',pinStage=0,pinFirst='';
+function showLock(){
+  var L=$('#lock');L.style.display='flex';
+  var setup=!S.pin;
+  L.innerHTML='<div class="box"><img src="'+LOGO+'" alt=""><div style="font-weight:700">'+(setup?(pinStage===0?'Create a 4-digit PIN':'Confirm your PIN'):'Enter PIN')+'</div><div class="pin">'+[0,1,2,3].map(function(i){return '<i class="'+(i<pinBuf.length?'on':'')+'"></i>';}).join('')+'</div><div class="err" id="perr"></div><div class="kp">'+[1,2,3,4,5,6,7,8,9].map(function(n){return '<button data-pin="'+n+'">'+n+'</button>';}).join('')+'<button data-pin="x" style="font-size:15px">Clear</button><button data-pin="0">0</button><button data-pin="b">⌫</button></div></div>';
+}
+function pinKey(k){
+  if(k==='x')pinBuf='';else if(k==='b')pinBuf=pinBuf.slice(0,-1);else if(pinBuf.length<4)pinBuf+=k;
+  showLock();
+  if(pinBuf.length<4)return;
+  var typed=pinBuf;pinBuf='';
+  if(!S.pin){
+    if(pinStage===0){pinFirst=typed;pinStage=1;showLock();return;}
+    if(typed!==pinFirst){pinStage=0;pinFirst='';showLock();$('#perr').textContent='PINs did not match. Try again.';return;}
+    hash(typed).then(function(h){S.pin=h;save();unlock();});return;
+  }
+  hash(typed).then(function(h){if(h===S.pin)unlock();else{showLock();$('#perr').textContent='Wrong PIN';}});
+}
+function unlock(){
+  try{localStorage.setItem(UNL,String(Date.now()));}catch(e){}
+  unlocked=true;$('#lock').style.display='none';render();
+}
+function isUnlocked(){try{var t=parseInt(localStorage.getItem(UNL)||'0',10);return S.pin&&Date.now()-t<8*3600*1000;}catch(e){return false;}}
+
+/* ---------- counters ---------- */
+function draftOf(kind){if(kind==='count')return S.countDraft;if(kind==='emp')return S.emp;if(kind==='got')return S.recv.got;if(kind==='dmg')return S.recv.dmg;return {};}
+function ctr(kind,id,val){
+  return '<div class="ctr"><button data-act="dec" data-k="'+kind+'" data-id="'+id+'">−</button><input type="number" inputmode="numeric" min="0" data-inp="ctr" data-k="'+kind+'" data-id="'+id+'" value="'+(val==null?'':val)+'" placeholder="–"><button data-act="inc" data-k="'+kind+'" data-id="'+id+'">+</button></div>';
+}
+function cardHTML(p,kind){
+  var d=draftOf(kind),v=d[p.id];var cls='cc';
+  if(kind==='count'&&v!=null)cls+=' done';if(kind==='emp'&&v>0)cls+=' hit';
+  var e=oh(p.id);
+  var exp=kind==='count'?('on hand '+(e==null?'?':e)+(S.verified[p.id]?'':'')):(kind==='emp'?('on hand '+(e==null?'?':e)):'');
+  var extra=kind==='count'?'<button class="btn g sm" style="margin-top:4px;padding:3px 8px" data-act="match" data-id="'+p.id+'">matches</button>':'';
+  return '<div class="'+cls+'" id="card-'+kind+'-'+cssId(p.id)+'"><div class="code">'+esc(p.code)+'</div><div class="exp">'+exp+'</div>'+ctr(kind,p.id,v)+extra+'</div>';
+}
+function cssId(id){return id.replace(/[^A-Za-z0-9_]/g,'_');}
+function rowHTML(p,kind){
+  var d=draftOf(kind),v=d[p.id];var e=oh(p.id);
+  return '<div class="lrow" id="card-'+kind+'-'+cssId(p.id)+'"><div class="nm"><b>'+esc(p.name)+'</b><small>on hand '+(e==null?'?':e)+'</small></div>'+(kind==='count'?'<button class="btn g sm" data-act="match" data-id="'+p.id+'">matches</button>':'')+ctr(kind,p.id,v)+'</div>';
+}
+function refreshCard(kind,id){
+  var p=S.products[id];var el=document.getElementById('card-'+kind+'-'+cssId(id));if(!el)return;
+  var html=(p.line==='BB'||p.line==='CR')?rowHTML(p,kind):cardHTML(p,kind);
+  var t=document.createElement('div');t.innerHTML=html;el.replaceWith(t.firstChild);
+  var pr=$('#prog');if(pr)pr.innerHTML=progHTML();
+  var sm=$('#empsum');if(sm)sm.innerHTML=empSumHTML();
+  var ap=document.querySelector('[data-act="applycount"]');if(ap){var n=Object.keys(S.countDraft).length;ap.disabled=!n;ap.textContent='Apply ('+n+')';}
+  var ce=document.querySelector('[data-act="commitemp"]');if(ce)ce.disabled=!Object.keys(S.emp).length;
+}
+function bump(kind,id,delta,setTo){
+  var d=draftOf(kind);var cur=d[id];
+  if(setTo!=null)cur=setTo;else cur=Math.max(0,(cur==null?0:cur)+delta);
+  if(kind==='dmg'&&cur===0){delete d[id];}else d[id]=cur;
+  save(true);refreshCard(kind,id);
+}
+
+/* ---------- views ---------- */
+function setView(v){view=v;q='';closeScan();render();window.scrollTo(0,0);}
+function render(){
+  if(!unlocked)return;
+  $('#logo').src=LOGO;
+  var tabs=[['home','Home'],['count','Count'],['empties','Empties'],['receive','Receive'],['order','Order'],['products','Products']];
+  $('#nav').innerHTML=tabs.map(function(t){return '<button class="'+(view===t[0]?'on':'')+'" data-act="view" data-v="'+t[0]+'">'+t[1]+'</button>';}).join('');
+  var m=$('#main');
+  if(view==='home')m.innerHTML=vHome();else if(view==='count')m.innerHTML=vCount();else if(view==='empties')m.innerHTML=vEmpties();else if(view==='receive')m.innerHTML=vReceive();else if(view==='order')m.innerHTML=vOrder();else m.innerHTML=vProducts();
+  if(!S.sync)cloudPush();
+}
+function counts(){
+  var out=0,low=0,unc=0,nopar=0,ver=0,tot=0;
+  plist().forEach(function(p){tot++;var s=status(p);if(s==='out')out++;if(s==='low')low++;if(s==='unc')unc++;if(s==='nopar')nopar++;if(S.verified[p.id])ver++;});
+  return {out:out,low:low,unc:unc,nopar:nopar,ver:ver,tot:tot};
+}
+function vHome(){
+  var c=counts(),h='';
+  var d=new Date().getDay();
+  if((d===0||d===1)&&Date.now()-(S.lastEmp||0)>4*86400000){h+='<div class="banner red"><b>Trash count is due</b><div class="sub" style="margin:2px 0 8px">Count the empties by shade and commit the week.</div><button class="btn p sm" data-act="view" data-v="empties">Go to Empties</button></div>';}
+  var pct=Math.round(c.ver/c.tot*100);
+  h+='<h1>Inventory</h1><p class="sub">Starting numbers come from Charlene\'s sheet plus the Nov 19 shipment. Each count you apply marks that product as verified.</p>';
+  h+='<div class="card"><div class="row"><b>'+c.ver+' of '+c.tot+' products verified</b><span class="sp"></span><span class="sub" style="margin:0">'+pct+'%</span></div><div class="bar" style="margin-top:8px"><i style="width:'+pct+'%"></i></div></div>';
+  var open=S.orders.filter(function(o){return o.status==='sent';}).length;
+  h+='<div class="stats"><div class="card stat"><b style="color:'+(c.out?'var(--red)':'inherit')+'">'+c.out+'</b><span>Out of stock</span></div><div class="card stat"><b style="color:'+(c.low?'var(--amb)':'inherit')+'">'+c.low+'</b><span>Low stock</span></div><div class="card stat"><b>'+open+'</b><span>Open orders</span></div><div class="card stat"><b>'+c.nopar+'</b><span>No par set</span></div></div>';
+  h+='<h2>To do</h2><div class="card" style="padding:4px 12px">'+todoHTML()+'</div>';
+  h+='<h2>Recent activity</h2><div class="card" style="padding:4px 12px">'+S.log.slice(-8).reverse().map(function(e){var p=e.id&&S.products[e.id];return '<div class="lrow"><div class="nm"><b>'+esc(e.k)+(p?' · '+esc(label(p)):'')+(e.q?' ('+(e.q>0?'+':'')+e.q+')':'')+'</b><small>'+esc(e.note||'')+'</small></div><small>'+fmtDate(e.t)+'</small></div>';}).join('')+'</div>';
+  return h;
+}
+function todoItem(key,title,sub,act,btn){
+  var on=!!S.todo[key];
+  return '<div class="todo"><div class="chk '+(on?'on':'')+'" data-act="todo" data-key="'+key+'"></div><div class="t"><b style="'+(on?'text-decoration:line-through;color:var(--mut)':'')+'">'+title+'</b><small>'+sub+'</small></div>'+(act&&!on?'<button class="btn sm" data-act="'+act[0]+'" data-v="'+act[1]+'" data-l="'+(act[2]||'')+'">'+btn+'</button>':'')+'</div>';
+}
+function todoHTML(){
+  var gt=plist('GT'),gtV=gt.filter(function(p){return S.verified[p.id];}).length;
+  var cr=plist('CR'),crV=cr.filter(function(p){return S.verified[p.id];}).length;
+  var tcV=plist('TC').filter(function(p){return S.verified[p.id];}).length,coV=plist('CO').filter(function(p){return S.verified[p.id];}).length,bbV=plist('BB').filter(function(p){return S.verified[p.id];}).length;
+  var nobar=plist().filter(function(p){return !Object.keys(S.barcodes).some(function(b){return S.barcodes[b]===p.id;});}).length;
+  var h='';
+  h+=todoItem('trash','Apply Charlene\'s trash tally','Enter the empties she counted, then commit the week so On Hand drops.',['view','empties'],'Open Empties');
+  h+=todoItem('gt','Recount Gloss Tones','Not counted yet ('+gtV+' of '+gt.length+' done).',['cnt','count','GT'],'Count');
+  h+=todoItem('cr','Count the Care products','Bond Pro, Blondes & Highlights, Rich Repair, serum spray ('+crV+' of '+cr.length+').',['cnt','count','CR'],'Count');
+  h+=todoItem('tc','Verify Topchic','Walk the closet bin by bin ('+tcV+' of '+plist('TC').length+').',['cnt','count','TC'],'Count');
+  h+=todoItem('co','Verify Colorance','('+coV+' of '+plist('CO').length+').',['cnt','count','CO'],'Count');
+  h+=todoItem('bb','Verify Backbar','Developers, lightener, serums ('+bbV+' of '+plist('BB').length+').',['cnt','count','BB'],'Count');
+  h+=todoItem('par','Set par levels and On Demand','After the count. Use Products. Shades you rarely need go on On Demand.',['view','products'],'Open Products');
+  h+=todoItem('bar','Link barcodes','Scan one can per shade while counting ('+nobar+' products have no barcode yet).',null,'');
+  return h;
+}
+function progHTML(){
+  var list=plist(lineSel),done=list.filter(function(p){return S.countDraft[p.id]!=null;}).length;
+  var ver=list.filter(function(p){return S.verified[p.id];}).length;
+  return '<span class="sub" style="margin:0">'+done+' counted in this session · '+ver+' of '+list.length+' verified</span>';
+}
+function lineTabs(kind){return '<div class="tabs">'+LINES.map(function(l){return '<button class="'+(lineSel===l[0]?'on':'')+'" data-act="line" data-l="'+l[0]+'">'+l[1]+'</button>';}).join('')+'</div>';}
+function gridFor(kind){
+  var list=plist(lineSel).filter(function(p){return matchQ(p,q);}),h='';
+  if(!list.length)return '<p class="sub">No products match.</p>';
+  groups(list).forEach(function(g){
+    h+='<div class="gh">'+esc(g[0])+'</div>';
+    if(lineSel==='BB'||lineSel==='CR')h+='<div>'+g[1].map(function(p){return rowHTML(p,kind);}).join('')+'</div>';
+    else h+='<div class="grid">'+g[1].map(function(p){return cardHTML(p,kind);}).join('')+'</div>';
+  });
+  return h;
+}
+function vCount(){
+  var n=Object.keys(S.countDraft).length;
+  return '<h1>Count</h1><p class="sub">Count what is physically on the shelf. Scan a can or tap + for each one. Tap "matches" if the number on hand is right. Nothing changes until you apply.</p>'+lineTabs('count')+
+  '<div class="row"><input class="f sp" id="q" placeholder="Search shade or product" value="'+esc(q)+'" data-inp="q" style="min-width:140px"><button class="btn" data-act="scan" data-mode="count">Scan</button><button class="btn p" data-act="applycount"'+(n?'':' disabled')+'>Apply ('+n+')</button></div>'+
+  '<div id="prog" style="margin:8px 0">'+progHTML()+'</div><div id="grid">'+gridFor('count')+'</div>';
+}
+function empSumHTML(){
+  var ids=Object.keys(S.emp).filter(function(k){return S.emp[k]>0;});var tot=ids.reduce(function(a,k){return a+S.emp[k];},0);
+  if(!ids.length)return '<span class="sub" style="margin:0">Nothing counted this week yet.</span>';
+  return '<b>'+tot+' empties</b> <span class="sub" style="margin:0">'+ids.slice(0,14).map(function(k){var p=S.products[k];return esc(tag(p)?p.code:p.short)+' ×'+S.emp[k];}).join(', ')+(ids.length>14?' …':'')+'</span>';
+}
+function vEmpties(){
+  return '<h1>Empties</h1><p class="sub">Charlene\'s weekly trash count. Scan each empty or tap + by shade. Commit the week to remove them from On Hand.</p>'+lineTabs('emp')+
+  '<div class="row"><input class="f sp" id="q" placeholder="Search shade or product" value="'+esc(q)+'" data-inp="q" style="min-width:140px"><button class="btn" data-act="scan" data-mode="emp">Scan</button><button class="btn p" data-act="commitemp"'+(Object.keys(S.emp).length?'':' disabled')+'>Commit week</button></div>'+
+  '<div id="empsum" class="card" style="margin:10px 0">'+empSumHTML()+'</div><div id="grid">'+gridFor('emp')+'</div>';
+}
+function vReceive(){
+  var h='<h1>Receive</h1><p class="sub">Check a delivery against the order. Scan each item or enter the counts. Flag anything damaged.</p>';
+  if(!S.recv){
+    var open=S.orders.filter(function(o){return o.status==='sent';});
+    h+='<div class="card"><b>Start receiving</b><div class="sub" style="margin:4px 0 10px">Pick the order you sent to Karen, or receive without an order.</div>';
+    open.forEach(function(o){h+='<div class="row" style="margin-bottom:8px"><div class="sp"><b>'+esc(o.id)+'</b><div class="sub" style="margin:0">Sent '+fmtDate(o.sentAt)+' · '+o.lines.reduce(function(a,l){return a+l.qty;},0)+' items</div></div><button class="btn p sm" data-act="startrecv" data-o="'+esc(o.id)+'">Receive</button></div>';});
+    h+='<button class="btn" data-act="startrecv" data-o="">Receive without an order</button></div>';
+    var done=S.orders.filter(function(o){return o.status==='received';}).slice(-5).reverse();
+    if(done.length){h+='<h2>Recently received</h2><div class="card" style="padding:4px 12px">'+done.map(function(o){return '<div class="lrow"><div class="nm"><b>'+esc(o.id)+'</b><small>Received '+fmtDate(o.receivedAt)+(o.ref?' · ref '+esc(o.ref):'')+'</small></div></div>';}).join('')+'</div>';}
+    return h;
+  }
+  var r=S.recv;var ord=r.orderId?S.orders.filter(function(o){return o.id===r.orderId;})[0]:null;
+  var ids=[];if(ord)ord.lines.forEach(function(l){ids.push(l.id);});
+  (r.extra||[]).forEach(function(i){if(ids.indexOf(i)<0)ids.push(i);});
+  Object.keys(r.got).forEach(function(i){if(ids.indexOf(i)<0)ids.push(i);});
+  h+='<div class="row"><b>'+(ord?esc(ord.id):'No order')+'</b><span class="sp"></span><input class="f" style="width:190px" placeholder="Packing list ref #" value="'+esc(r.ref||'')+'" data-inp="ref"></div>';
+  h+='<div class="row" style="margin:10px 0"><button class="btn" data-act="scan" data-mode="recv">Scan</button><button class="btn g" data-act="addrecv">Add an item</button><span class="sp"></span><button class="btn g" data-act="cancelrecv">Cancel</button></div>';
+  h+='<div class="card" style="padding:4px 12px">';
+  if(!ids.length)h+='<p class="sub" style="padding:10px 0">Scan or add the items that arrived.</p>';
+  ids.forEach(function(id){
+    var p=S.products[id];var exp=ord?ord.lines.filter(function(l){return l.id===id;}).map(function(l){return l.qty;})[0]:null;
+    var got=r.got[id]||0,dm=r.dmg[id]||0;
+    h+='<div class="lrow" id="rv-'+cssId(id)+'"><div class="nm"><b>'+esc(tag(p)?p.line==='TC'?'Topchic '+p.code:p.line==='CO'?'Colorance '+p.code:'Gloss Tones '+p.code:p.name)+'</b><small>'+(exp!=null?'ordered '+exp:'not on order')+'</small></div><div style="text-align:center"><small>got</small>'+ctr('got',id,got||'')+'</div><div style="text-align:center"><small>damaged</small>'+ctr('dmg',id,dm||'')+'</div></div>';
+  });
+  h+='</div><div class="row" style="margin-top:12px"><button class="btn p" data-act="confirmrecv">Confirm received</button></div>';
+  return h;
+}
+function orderLines(){
+  var ids=Object.keys(S.cart).filter(function(k){return S.cart[k]>0;});
+  ids.sort(function(a,b){return S.products[a].o-S.products[b].o;});return ids;
+}
+function orderText(){
+  var out=[];
+  LINES.forEach(function(l){
+    var ids=orderLines().filter(function(id){return S.products[id].line===l[0];});
+    if(!ids.length)return;
+    out.push(l[1]);
+    ids.forEach(function(id){var p=S.products[id];out.push((tag(p)?p.code:p.short)+'-'+S.cart[id]);});
+    out.push('');
+  });
+  return out.join('\n').trim();
+}
+function vOrder(){
+  var h='<h1>Order</h1><p class="sub">Build the order for Karen. Add what is low, or anything else you want to stock up on, then send it as a text.</p>';
+  var sug=plist().filter(function(p){return suggest(p)>0;});
+  h+='<div class="row"><button class="btn" data-act="addsug"'+(sug.length?'':' disabled')+'>Add all suggested ('+sug.length+')</button><button class="btn g" data-act="addany">Add any product</button><button class="btn g" data-act="scan" data-mode="order">Scan to add</button></div>';
+  var ids=orderLines();
+  h+='<h2>This order ('+ids.reduce(function(a,id){return a+S.cart[id];},0)+' item(s))</h2><div class="card" style="padding:4px 12px">';
+  if(!ids.length)h+='<p class="sub" style="padding:10px 0">Nothing yet. Set par levels in Products to get suggestions, or add items by hand.</p>';
+  ids.forEach(function(id){var p=S.products[id];var e=oh(id);h+='<div class="lrow"><div class="nm"><b>'+esc(tag(p)?lineName(p.line)+' '+p.code:p.name)+(S.onSale[id]?' <span class="pill sale">SALE</span>':'')+'</b><small>on hand '+(e==null?'?':e)+' · par '+(S.par[id]||'–')+(incoming(id)?' · incoming '+incoming(id):'')+'</small></div>'+ctr('cart',id,S.cart[id])+'</div>';});
+  h+='</div>';
+  if(ids.length){
+    h+='<h2>Text for Karen</h2><textarea class="f" id="otext" data-inp="otext">'+esc(S.otext!=null&&S.otextAuto===orderText()?S.otext:orderText())+'</textarea>';
+    h+='<div class="row" style="margin-top:10px"><button class="btn p" data-act="copytext">Copy text</button><button class="btn" data-act="sms">Open in Messages</button><button class="btn g" data-act="printpo">PDF / print</button><span class="sp"></span><button class="btn" data-act="marksent">Mark as sent</button></div>';
+  }
+  if(sug.length){h+='<h2>Suggested</h2><p class="sub">Gap to par, minus anything already on order.</p><div class="card" style="padding:4px 12px">'+sug.map(function(p){return '<div class="lrow"><div class="nm"><b>'+esc(tag(p)?lineName(p.line)+' '+p.code:p.name)+(S.onSale[p.id]?' <span class="pill sale">SALE</span>':'')+'</b><small>on hand '+oh(p.id)+' · par '+S.par[p.id]+'</small></div><button class="btn sm" data-act="addone" data-id="'+p.id+'">Add '+suggest(p)+'</button></div>';}).join('')+'</div>';}
+  var sent=S.orders.slice(-5).reverse();
+  if(sent.length){h+='<h2>Order history</h2><div class="card" style="padding:4px 12px">'+sent.map(function(o){return '<div class="lrow"><div class="nm"><b>'+esc(o.id)+'</b><small>'+o.status+' · '+o.lines.reduce(function(a,l){return a+l.qty;},0)+' items · '+fmtDate(o.sentAt)+'</small></div></div>';}).join('')+'</div>';}
+  return h;
+}
+function vProducts(){
+  var list=plist(lineSel).filter(function(p){return matchQ(p,q);});
+  var h='<h1>Products</h1><p class="sub">Par is the least you want on hand. On Demand silences alerts for shades you only stock when a client needs them.</p>'+lineTabs('prod');
+  h+='<div class="row"><input class="f sp" id="q" placeholder="Search" value="'+esc(q)+'" data-inp="pq" style="min-width:140px"><button class="btn g" data-act="addprod">Add product</button><button class="btn g" data-act="csv">Export CSV</button></div>';
+  h+='<div id="plist">'+prodTable(list)+'</div>';
+  return h;
+}
+function prodTable(list){
+  if(!list.length)return '<p class="sub">No products match.</p>';
+  var h='<table class="tbl" style="margin-top:10px"><tr><th>Product</th><th>On hand</th><th>Par</th><th>Bin</th><th>On Demand</th><th>Sale</th><th></th></tr>';
+  list.forEach(function(p){
+    var s=status(p);var pill=s==='out'?'<span class="pill out">out</span>':s==='low'?'<span class="pill low">low</span>':s==='unc'?'<span class="pill">uncounted</span>':'';
+    var nb=Object.keys(S.barcodes).filter(function(b){return S.barcodes[b]===p.id;}).length;
+    h+='<tr><td><b>'+esc(tag(p)?p.code:p.name)+'</b> '+pill+(nb?'':' <small style="color:var(--mut)">no barcode</small>')+'</td><td>'+(oh(p.id)==null?'?':oh(p.id))+'</td><td><input class="f inl" type="number" inputmode="numeric" min="0" data-inp="par" data-id="'+p.id+'" value="'+(S.par[p.id]||'')+'"></td><td><input class="f inl" style="width:90px!important" data-inp="loc" data-id="'+p.id+'" value="'+esc(S.loc[p.id]||'')+'" placeholder="bin"></td><td><input type="checkbox" data-inp="od" data-id="'+p.id+'"'+(S.onDemand[p.id]?' checked':'')+'></td><td><input type="checkbox" data-inp="sale" data-id="'+p.id+'"'+(S.onSale[p.id]?' checked':'')+'></td><td><button class="btn g sm" data-act="linkbar" data-id="'+p.id+'">Link barcode</button></td></tr>';
+  });
+  return h+'</table>';
+}
+
+/* ---------- modals ---------- */
+function modal(html){$('#modal').innerHTML='<div class="modal" data-act="mclose"><div class="box" data-stop="1">'+html+'</div></div>';}
+function closeModal(){$('#modal').innerHTML='';}
+function pickProduct(title,cb,only){
+  pickCb=cb;modal('<h3>'+esc(title)+'</h3><input class="f" id="pq" placeholder="Search shade or product" data-inp="pick" autofocus><div id="pres" style="margin-top:8px"></div><div class="row" style="margin-top:10px"><button class="btn g" data-act="mclose2">Cancel</button></div>');
+  pickOnly=only||null;pickRes('');
+}
+var pickCb=null,pickOnly=null;
+function pickRes(qq){
+  var list=plist(pickOnly).filter(function(p){return matchQ(p,qq);}).slice(0,40);
+  $('#pres').innerHTML=list.map(function(p){return '<div class="lrow" data-act="pick" data-id="'+p.id+'" style="cursor:pointer"><div class="nm"><b>'+esc(tag(p)?lineName(p.line)+' '+p.code:p.name)+'</b></div></div>';}).join('')||'<p class="sub">No match</p>';
+}
+
+/* ---------- scanner ---------- */
+var zx=null,scanMode=null,scanBusy=false,lastScan={c:'',t:0},scanTally=0;
+function openScan(mode){
+  scanMode=mode;scanTally=0;
+  $('#modal').innerHTML='<div class="modal" style="align-items:center"><div class="box" style="border-radius:14px"><h3>Scan</h3><video id="vid" playsinline muted></video><div id="scanmsg" class="sub" style="margin-top:8px">Point the camera at a barcode.</div><div class="row" style="margin-top:8px"><input class="f sp" id="manbar" placeholder="Or type the barcode number" inputmode="numeric"><button class="btn" data-act="manbar">Add</button></div><div class="row" style="margin-top:10px"><button class="btn p" data-act="scandone">Done</button></div></div></div>';
+  if(!window.ZXing||!navigator.mediaDevices){$('#scanmsg').textContent='Camera scanning is not available here. You can type the barcode number instead.';return;}
+  try{
+    zx=new ZXing.BrowserMultiFormatReader();
+    zx.decodeFromConstraints({video:{facingMode:'environment'}},'vid',function(res){if(res)onCode(res.getText());});
+  }catch(e){$('#scanmsg').textContent='Could not start the camera. Allow camera access in your browser settings.';}
+}
+function closeScan(){try{if(zx){zx.reset();zx=null;}}catch(e){}}
+function onCode(code){
+  if(scanBusy)return;var now=Date.now();if(code===lastScan.c&&now-lastScan.t<1800)return;lastScan={c:code,t:now};
+  var id=S.barcodes[code];
+  if(id){applyScan(id);return;}
+  scanBusy=true;
+  var prev=$('#modal').innerHTML;
+  var layer=document.createElement('div');layer.id='scanpick';document.body.appendChild(layer);
+  layer.innerHTML='<div class="modal" style="z-index:80"><div class="box"><h3>New barcode</h3><p class="sub">'+esc(code)+' is not linked to a product yet. Pick the product so it is remembered.</p><input class="f" id="pq" placeholder="Search shade or product" data-inp="pickscan" data-code="'+esc(code)+'"><div id="pres" style="margin-top:8px"></div><div class="row" style="margin-top:10px"><button class="btn g" data-act="skipscan">Skip</button></div></div></div>';
+  pickOnly=null;pickRes('');
+  window._scanCode=code;
+}
+function applyScan(id){
+  var p=S.products[id];scanTally++;
+  if(scanMode==='count'){S.countDraft[id]=(S.countDraft[id]||0)+1;save(true);toast((tag(p)?p.code:p.short)+' → '+S.countDraft[id]);}
+  else if(scanMode==='emp'){S.emp[id]=(S.emp[id]||0)+1;save(true);toast((tag(p)?p.code:p.short)+' empty ×'+S.emp[id]);}
+  else if(scanMode==='recv'){if(S.recv){S.recv.got[id]=(S.recv.got[id]||0)+1;save(true);toast((tag(p)?p.code:p.short)+' received ×'+S.recv.got[id]);}}
+  else if(scanMode==='order'){S.cart[id]=(S.cart[id]||0)+1;save(true);toast((tag(p)?p.code:p.short)+' added ×'+S.cart[id]);}
+  else if(scanMode==='link'){linkBarcode(window._linkCode,id);}
+  var m=$('#scanmsg');if(m)m.textContent=scanTally+' scanned · last: '+(tag(p)?lineName(p.line)+' '+p.code:p.name);
+}
+function linkBarcode(code,id){S.barcodes[code]=id;logEv('barcode',id,0,code);save();toast('Linked');}
+
+/* ---------- actions ---------- */
+function applyCountFlow(){
+  var d=S.countDraft,ids=Object.keys(d);if(!ids.length)return;
+  var diffs=ids.filter(function(id){return oh(id)!==d[id];});
+  var h='<h3>Apply count</h3><p class="sub">'+ids.length+' products counted. '+diffs.length+' differ from the numbers on file.</p>';
+  if(diffs.length){h+='<div class="card" style="padding:4px 12px;max-height:40vh;overflow:auto">'+diffs.map(function(id){var p=S.products[id];var b=oh(id);return '<div class="lrow"><div class="nm"><b>'+esc(tag(p)?lineName(p.line)+' '+p.code:p.name)+'</b></div><span>'+(b==null?'?':b)+' → <b>'+d[id]+'</b></span></div>';}).join('')+'</div>';}
+  h+='<div class="row" style="margin-top:12px"><button class="btn p" data-act="doapply">Apply</button><button class="btn g" data-act="mclose2">Cancel</button></div>';
+  modal(h);
+}
+function doApply(){
+  var d=S.countDraft;Object.keys(d).forEach(function(id){var b=oh(id);if(b!==d[id])logEv('count',id,d[id]-(b||0),'counted '+d[id]+' (was '+(b==null?'?':b)+')');S.onHand[id]=d[id];S.verified[id]=Date.now();});
+  S.countDraft={};save();closeModal();render();toast('Count applied');
+}
+function commitEmp(){
+  var d=S.emp,ids=Object.keys(d).filter(function(k){return d[k]>0;});if(!ids.length)return;
+  var wk=weekKey();S.empHist[wk]=S.empHist[wk]||{};
+  ids.forEach(function(id){var b=oh(id);if(b!=null)S.onHand[id]=Math.max(0,b-d[id]);S.empHist[wk][id]=(S.empHist[wk][id]||0)+d[id];logEv('empty',id,-d[id],'week of '+wk);});
+  S.emp={};S.lastEmp=Date.now();S.todo.trash=true;save();render();toast('Week committed');
+}
+function startRecv(oid){S.recv={orderId:oid||null,got:{},dmg:{},extra:[],ref:''};if(oid){var o=S.orders.filter(function(x){return x.id===oid;})[0];o.lines.forEach(function(l){S.recv.got[l.id]=0;});}save(true);render();}
+function confirmRecv(){
+  var r=S.recv,ids=Object.keys(r.got).filter(function(k){return r.got[k]>0||r.dmg[k]>0;});
+  if(!ids.length){toast('Nothing received yet');return;}
+  var dmgLines=[];
+  ids.forEach(function(id){var g=r.got[id]||0,dm=r.dmg[id]||0,good=Math.max(0,g-dm);var b=oh(id);S.onHand[id]=(b==null?0:b)+good;logEv('receive',id,good,dm?('damaged '+dm+(r.ref?', ref '+r.ref:'')):'');if(dm){var p=S.products[id];dmgLines.push((tag(p)?lineName(p.line)+' '+p.code:p.name)+' × '+dm);}});
+  if(r.orderId){var o=S.orders.filter(function(x){return x.id===r.orderId;})[0];o.status='received';o.receivedAt=Date.now();o.ref=r.ref;o.recvGot=r.got;o.recvDmg=r.dmg;}
+  var msg=dmgLines.length?('Hi Karen, we received our order'+(r.ref?' (ref '+r.ref+')':'')+' and these arrived damaged:\n'+dmgLines.join('\n')+'\nCan we get credit or a replacement?'):'';
+  S.recv=null;save();render();
+  if(msg){modal('<h3>Damaged items</h3><p class="sub">Copy this to text Karen.</p><textarea class="f" id="dmgtext" style="min-height:140px">'+esc(msg)+'</textarea><div class="row" style="margin-top:10px"><button class="btn p" data-act="copydmg">Copy</button><button class="btn g" data-act="mclose2">Close</button></div>');}
+  else toast('Received and added to On Hand');
+}
+function copy(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){toast('Copied');},function(){fallbackCopy(t);});}else fallbackCopy(t);
+}
+function fallbackCopy(t){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');toast('Copied');}catch(e){toast('Copy failed');}a.remove();}
+function curText(){var t=$('#otext');return t?t.value:orderText();}
+function markSent(){
+  var ids=orderLines();if(!ids.length)return;
+  var n=S.orders.length+1;var id='VR-'+ymd().replace(/-/g,'')+'-'+(n<10?'0'+n:n);
+  S.orders.push({id:id,status:'sent',sentAt:Date.now(),text:curText(),lines:ids.map(function(i){return {id:i,qty:S.cart[i]};})});
+  logEv('order',null,0,id+' sent to Karen');
+  S.cart={};S.otext=null;save();render();toast('Marked as sent');
+}
+function printPO(){
+  var ids=orderLines();var h='<img src="'+LOGO+'" style="height:44px"><h2 style="margin:12px 0 2px">Order for Karen</h2><div style="color:#555">Vintage Roots Hair Salon · 153 Main St, North Reading, MA 01864 · '+new Date().toLocaleDateString()+'</div><br>';
+  LINES.forEach(function(l){var li=ids.filter(function(i){return S.products[i].line===l[0];});if(!li.length)return;h+='<h3 style="margin:14px 0 4px">'+l[1]+'</h3><table><tr><th>Item</th><th style="width:70px">Qty</th></tr>'+li.map(function(i){var p=S.products[i];return '<tr><td>'+esc(tag(p)?p.code:p.name)+(S.onSale[i]?' (sale)':'')+'</td><td>'+S.cart[i]+'</td></tr>';}).join('')+'</table>';});
+  $('#print').innerHTML=h;setTimeout(function(){window.print();},50);
+}
+function exportCSV(){
+  var rows=[['Line','Code','Name','On hand','Par','On demand','Bin','Verified']];
+  plist().forEach(function(p){rows.push([lineName(p.line),p.code,p.name,oh(p.id)==null?'':oh(p.id),S.par[p.id]||'',S.onDemand[p.id]?'yes':'',S.loc[p.id]||'',S.verified[p.id]?'yes':'']);});
+  var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='vr-inventory-'+ymd()+'.csv';document.body.appendChild(a);a.click();a.remove();
+}
+function settings(){
+  var c=cfg();
+  modal('<h3>Settings</h3><div class="gh">Karen\'s number (for Messages)</div><input class="f" id="karen" inputmode="tel" value="'+esc(S.karen||'')+'" placeholder="978…"><div class="gh">Shared data (Supabase)</div><input class="f" id="sbu" placeholder="Project URL" value="'+esc(c.supabaseUrl)+'"><input class="f" id="sbk" placeholder="Anon key" style="margin-top:6px" value="'+esc(c.supabaseKey)+'"><div class="gh">Backup</div><div class="row"><button class="btn g sm" data-act="backup">Download backup</button><button class="btn g sm" data-act="restore">Restore backup</button></div><input type="file" id="rfile" accept=".json" style="display:none"><div class="gh">Security</div><button class="btn g sm" data-act="changepin">Change PIN</button> <button class="btn g sm" data-act="lockn">Lock now</button><div class="row" style="margin-top:16px"><button class="btn p" data-act="savesettings">Save</button><button class="btn g" data-act="mclose2">Close</button></div>');
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',function(e){
+  var pk=e.target.closest('[data-pin]');if(pk){pinKey(pk.getAttribute('data-pin'));return;}
+  var b=e.target.closest('[data-act]');if(!b)return;
+  var a=b.getAttribute('data-act'),ds=b.dataset;
+  if(a==='mclose'){if(e.target===b)closeModal();return;}
+  if(a==='mclose2'){closeModal();return;}
+  if(a==='view'){setView(ds.v);}
+  else if(a==='cnt'){lineSel=ds.l;setView('count');}
+  else if(a==='line'){lineSel=ds.l;q='';render();}
+  else if(a==='inc')bump(ds.k,ds.id,1);
+  else if(a==='dec')bump(ds.k,ds.id,-1);
+  else if(a==='match'){var v=oh(ds.id);bump('count',ds.id,0,v==null?0:v);}
+  else if(a==='scan'){openScan(ds.mode);}
+  else if(a==='scandone'){closeScan();closeModal();render();}
+  else if(a==='manbar'){var v2=($('#manbar').value||'').trim();if(v2){lastScan={c:'',t:0};onCode(v2);$('#manbar').value='';}}
+  else if(a==='applycount')applyCountFlow();
+  else if(a==='doapply')doApply();
+  else if(a==='commitemp'){if(confirm('Commit this week\'s empties and remove them from On Hand?'))commitEmp();}
+  else if(a==='startrecv')startRecv(ds.o);
+  else if(a==='cancelrecv'){if(confirm('Discard this receiving session?')){S.recv=null;save(true);render();}}
+  else if(a==='addrecv'){pickProduct('Add an item',function(id){S.recv.extra=S.recv.extra||[];if(S.recv.extra.indexOf(id)<0)S.recv.extra.push(id);S.recv.got[id]=S.recv.got[id]||0;save(true);closeModal();render();});}
+  else if(a==='confirmrecv')confirmRecv();
+  else if(a==='copydmg'){copy($('#dmgtext').value);}
+  else if(a==='addsug'){plist().forEach(function(p){var s=suggest(p);if(s>0&&!S.cart[p.id])S.cart[p.id]=s;});save(true);render();}
+  else if(a==='addone'){S.cart[ds.id]=suggest(S.products[ds.id]);save(true);render();}
+  else if(a==='addany'){pickProduct('Add to order',function(id){S.cart[id]=(S.cart[id]||0)+1;save(true);closeModal();render();});}
+  else if(a==='copytext')copy(curText());
+  else if(a==='sms'){var t=curText();var ios=/iPhone|iPad|Mac/.test(navigator.userAgent);location.href='sms:'+(S.karen||'')+(ios?'&':'?')+'body='+encodeURIComponent(t);}
+  else if(a==='printpo')printPO();
+  else if(a==='marksent'){if(confirm('Mark this order as sent to Karen?'))markSent();}
+  else if(a==='pick'){var id=ds.id;if(window._scanPick){linkBarcode(window._scanCode,id);var lay=$('#scanpick');if(lay)lay.remove();scanBusy=false;window._scanPick=false;applyScan(id);}else if(pickCb){var f=pickCb;pickCb=null;f(id);}}
+  else if(a==='skipscan'){var l2=$('#scanpick');if(l2)l2.remove();scanBusy=false;}
+  else if(a==='todo'){S.todo[ds.key]=!S.todo[ds.key];save(true);render();}
+  else if(a==='csv')exportCSV();
+  else if(a==='addprod'){modal('<h3>Add product</h3><select class="f" id="np_l">'+LINES.map(function(l){return '<option value="'+l[0]+'">'+l[1]+'</option>';}).join('')+'</select><input class="f" id="np_c" placeholder="Shade code or product name" style="margin-top:8px"><div class="row" style="margin-top:12px"><button class="btn p" data-act="saveprod">Add</button><button class="btn g" data-act="mclose2">Cancel</button></div>');}
+  else if(a==='saveprod'){var ln=$('#np_l').value,cd=($('#np_c').value||'').trim();if(!cd)return;var pid=ln+'_USR_'+cd.replace(/[^A-Za-z0-9@]+/g,'_');if(S.products[pid]){toast('Already exists');return;}var mx=0;plist().forEach(function(p){if(p.o>mx)mx=p.o;});S.products[pid]={id:pid,line:ln,code:cd,name:(ln==='TC'||ln==='CO'||ln==='GT')?lineName(ln)+' '+cd:cd,short:cd,size:'',grp:ln==='BB'||ln==='CR'?'Other':null,o:mx+1};logEv('add',pid,0,'product added');save();closeModal();lineSel=ln;render();}
+  else if(a==='linkbar'){window._linkCode=null;var pid2=ds.id;scanMode='link';openScan('link');window._scanLinkId=pid2;}
+  else if(a==='settings')settings();
+  else if(a==='savesettings'){S.karen=($('#karen').value||'').trim();try{localStorage.setItem(CFGK,JSON.stringify({supabaseUrl:($('#sbu').value||'').trim(),supabaseKey:($('#sbk').value||'').trim()}));}catch(x){}save();closeModal();toast('Saved');}
+  else if(a==='backup'){var aa=document.createElement('a');aa.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));aa.download='vr-inventory-backup-'+ymd()+'.json';document.body.appendChild(aa);aa.click();aa.remove();}
+  else if(a==='restore'){var rf=$('#rfile');rf.onchange=function(){var fr=new FileReader();fr.onload=function(){try{var d=JSON.parse(fr.result);if(d&&d.products){if(confirm('Replace all current data with this backup?')){S=d;save();closeModal();render();toast('Restored');}}}catch(x){toast('Not a valid backup');}};fr.readAsText(rf.files[0]);};rf.click();}
+  else if(a==='changepin'){S.pin=null;pinStage=0;pinBuf='';unlocked=false;closeModal();showLock();}
+  else if(a==='lockn'){try{localStorage.removeItem(UNL);}catch(x){}unlocked=false;closeModal();pinBuf='';showLock();}
+});
+document.addEventListener('input',function(e){
+  var t=e.target,k=t.getAttribute&&t.getAttribute('data-inp');if(!k)return;
+  if(k==='q'){q=t.value;var g=$('#grid');if(g)g.innerHTML=gridFor(view==='empties'?'emp':'count');}
+  else if(k==='pq'){q=t.value;var pl=$('#plist');if(pl)pl.innerHTML=prodTable(plist(lineSel).filter(function(p){return matchQ(p,q);}));}
+  else if(k==='pick'){pickRes(t.value);}
+  else if(k==='pickscan'){window._scanPick=true;pickRes(t.value);}
+  else if(k==='otext'){S.otext=t.value;S.otextAuto=orderText();}
+  else if(k==='ref'){S.recv.ref=t.value;save(true);}
+});
+document.addEventListener('change',function(e){
+  var t=e.target,k=t.getAttribute&&t.getAttribute('data-inp');if(!k)return;var id=t.getAttribute('data-id');
+  if(k==='ctr'){var kind=t.getAttribute('data-k');var v=t.value===''?null:Math.max(0,parseInt(t.value,10)||0);
+    if(kind==='cart'){if(v==null||v===0)delete S.cart[id];else S.cart[id]=v;save(true);render();}
+    else{if(v==null)delete draftOf(kind)[id];else draftOf(kind)[id]=v;save(true);refreshCard(kind,id);}}
+  else if(k==='par'){var pv=parseInt(t.value,10);if(pv>0)S.par[id]=pv;else delete S.par[id];save();}
+  else if(k==='loc'){if(t.value.trim())S.loc[id]=t.value.trim();else delete S.loc[id];save();}
+  else if(k==='od'){if(t.checked)S.onDemand[id]=1;else delete S.onDemand[id];save();}
+  else if(k==='sale'){if(t.checked)S.onSale[id]=1;else delete S.onSale[id];save();}
+});
+/* scan-pick needs a flag when the barcode picker layer is open */
+var _origOnCode=onCode;
+onCode=function(code){
+  if(scanMode==='link'&&window._scanLinkId){window._linkCode=code;var id=window._scanLinkId;window._scanLinkId=null;linkBarcode(code,id);closeScan();closeModal();render();return;}
+  _origOnCode(code);
+};
+
+/* ---------- boot ---------- */
+load();
+$('#logo').src=LOGO;
+cloudPull(function(){
+  if(isUnlocked()){unlocked=true;render();}else{showLock();}
+});
+if('serviceWorker' in navigator){/* offline support can be added later */}
+})();
+</script>
+</body>
+</html>
